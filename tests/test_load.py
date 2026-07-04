@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, create_autospec, patch
 
 import pytest
 from google.cloud import bigquery
+
 from spotify_analytics.load import BigQueryLoader, BigQueryLoaderError
 from spotify_analytics.models import IngestionRun, StreamingHistoryItem, TrackFeatures
 

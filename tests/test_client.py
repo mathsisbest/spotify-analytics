@@ -2,6 +2,7 @@ from unittest.mock import Mock, call, patch
 
 import pytest
 import requests
+
 from spotify_analytics.auth import TokenStore
 from spotify_analytics.client import (
     RateLimitError,

@@ -3,6 +3,7 @@ from unittest.mock import Mock, create_autospec, patch
 
 import pytest
 from google.cloud import bigquery
+
 from spotify_analytics.auth import TokenStore
 from spotify_analytics.client import SpotifyClientError
 from spotify_analytics.ingest import Ingestor, _build_token_store, _env_or_raise, main

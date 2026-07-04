@@ -2,6 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 import requests
+
 from spotify_analytics.auth import (
     SpotifyAuthError,
     SpotifyTokenResponse,

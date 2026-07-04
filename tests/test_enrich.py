@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+
 from spotify_analytics.auth import TokenStore
 from spotify_analytics.client import SpotifyClient
 from spotify_analytics.enrich import (
