@@ -19,6 +19,7 @@ snapshot-paths:
   - snapshots
 docs-paths:
   - docs
+  - models
 target-path: target
 clean-targets:
   - target

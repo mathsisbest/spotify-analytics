@@ -1,65 +1,72 @@
--- TODO (Phase 2): Fact listening table with full enrichment.
--- One row per listen, joined with audio features, time features, and session context.
--- This is a stub to be fleshed out in Phase 2.
+with streaming_base as (
+    select *
+    from {{ ref('stg_streaming_history') }}
+),
 
-with listening as (
+audio_features as (
     select
-        sh.track_id,
-        sh.track_name,
-        sh.artist_name,
-        sh.artist_id,
-        sh.album_name,
-        sh.album_id,
-        sh.played_at,
-        sh.context,
-        tf.danceability,
-        tf.energy,
-        tf.valence,
-        tf.tempo,
-        tf.duration_ms,
-        tf.key,
-        tf.loudness,
-        tf.mode,
-        tf.speechiness,
-        tf.acousticness,
-        tf.instrumentalness,
-        tf.liveness,
-        tf.time_signature,
-        t.hour_of_day,
-        t.day_of_week,
-        t.month,
-        t.is_weekend
-    from {{ ref('stg_streaming_history') }} as sh
-    left join {{ ref('stg_track_features') }} as tf
-        on sh.track_id = tf.track_id
-    left join {{ ref('int_time_features') }} as t
-        on sh.track_id = t.track_id and sh.played_at = t.played_at
+        track_id,
+        danceability,
+        energy,
+        key,
+        loudness,
+        mode,
+        speechiness,
+        acousticness,
+        instrumentalness,
+        liveness,
+        valence,
+        tempo,
+        time_signature,
+        duration_ms
+    from {{ ref('stg_track_features') }}
+),
+
+time_features as (
+    select
+        track_id,
+        played_at,
+        hour_of_day,
+        day_of_week,
+        month,
+        day_of_month,
+        year,
+        is_weekend
+    from {{ ref('int_time_features') }}
+),
+
+joined as (
+    select
+        sb.*,
+        af.danceability,
+        af.energy,
+        af.key,
+        af.loudness,
+        af.mode,
+        af.speechiness,
+        af.acousticness,
+        af.instrumentalness,
+        af.liveness,
+        af.valence,
+        af.tempo,
+        af.time_signature,
+        af.duration_ms,
+        tf.hour_of_day,
+        tf.day_of_week,
+        tf.month,
+        tf.day_of_month,
+        tf.year,
+        tf.is_weekend
+    from streaming_base as sb
+    left join audio_features as af
+        on sb.track_id = af.track_id
+    left join time_features as tf
+        on sb.track_id = tf.track_id and sb.played_at = tf.played_at
 )
 
 select
-    track_id,
-    track_name,
-    artist_name,
-    artist_id,
-    album_name,
-    album_id,
-    played_at,
-    context,
-    danceability,
-    energy,
-    valence,
-    tempo,
-    duration_ms,
-    key,
-    loudness,
-    mode,
-    speechiness,
-    acousticness,
-    instrumentalness,
-    liveness,
-    time_signature,
-    hour_of_day,
-    day_of_week,
-    month,
-    is_weekend
-from listening
+    j.*,
+    ils.* except (track_id, played_at)
+from joined as j
+left join {{ ref('int_listening_sessions') }} as ils
+    on j.track_id = ils.track_id and j.played_at = ils.played_at

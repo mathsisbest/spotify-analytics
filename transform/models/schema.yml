@@ -1,0 +1,446 @@
+version: 2
+
+models:
+  - name: stg_streaming_history
+    description: >
+      Clean, deduplicated streaming history rows sourced from the raw ingestion layer.
+      Each row represents a single listen event with track and artist metadata.
+      Deduplication uses row_number() partitioned by (track_id, played_at).
+    columns:
+      - name: track_id
+        description: "{{ doc('doc__track_id') }}"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_track_features')
+              field: track_id
+      - name: track_name
+        description: "Track title as returned by the Spotify Web API."
+      - name: artist_name
+        description: "Primary artist name for the track."
+      - name: artist_id
+        description: "{{ doc('doc__artist_id') }}"
+      - name: album_name
+        description: "Album name containing the track."
+      - name: album_id
+        description: "Spotify album identifier (unique per album)."
+      - name: played_at
+        description: "{{ doc('doc__played_at') }}"
+        tests:
+          - not_null
+      - name: context
+        description: >
+          Playback context indicating how the track was played.
+          Possible values: playlist, album, artist, or null (manual selection).
+      - name: ingested_at
+        description: "Timestamp when the raw row was written to the source table."
+
+  - name: stg_track_features
+    description: >
+      Clean, casted audio features for tracks sourced from the Spotify Audio Features API.
+      One row per track_id. Floats and integers are cast to their correct BigQuery types.
+    columns:
+      - name: track_id
+        description: "{{ doc('doc__track_id') }}"
+        tests:
+          - not_null
+          - unique
+      - name: danceability
+        description: >
+          How suitable a track is for dancing based on a combination of musical
+          elements including tempo, rhythm stability, beat strength, and overall regularity (0.0–1.0).
+      - name: energy
+        description: >
+          Perceptual measure of intensity and activity. Energetic tracks feel fast,
+          loud, and noisy (0.0–1.0).
+      - name: key
+        description: "Estimated musical key (0=C, 1=C#/Db, …, 11=B, -1=no key detected)."
+      - name: loudness
+        description: "Overall loudness of the track in decibels (dB), averaged across the track."
+      - name: mode
+        description: "Modality — major (1) or minor (0), indicating the tonal character."
+      - name: speechiness
+        description: >
+          Presence of spoken words. Values above 0.66 indicate entirely spoken tracks
+          (e.g. podcast), 0.33–0.66 may contain both music and speech (0.0–1.0).
+      - name: acousticness
+        description: "Confidence measure of whether the track is acoustic (0.0–1.0)."
+      - name: instrumentalness
+        description: >
+          Probability the track contains no vocals. Values >0.5 are likely
+          instrumental tracks (0.0–1.0).
+      - name: liveness
+        description: >
+          Probability the track was performed live. Values >0.8 indicate a
+          strong likelihood of a live audience recording (0.0–1.0).
+      - name: valence
+        description: >
+          Musical positiveness conveyed by the track. High values sound cheerful
+          and euphoric; low values sound sad or angry (0.0–1.0).
+      - name: tempo
+        description: "Estimated tempo of the track in beats per minute (BPM)."
+      - name: time_signature
+        description: "Estimated time signature ranging from 3 to 7 (e.g. 4 = 4/4)."
+      - name: duration_ms
+        description: "{{ doc('doc__duration_ms') }}"
+      - name: fetched_at
+        description: "Timestamp when the audio feature data was retrieved from the API."
+
+  - name: int_listening_sessions
+    description: >
+      Sessionized listening data where consecutive tracks played within 30 minutes
+      of each other are grouped into a single listening session. Each row is a
+      track listen within its session context, with a surrogate session_id.
+    columns:
+      - name: session_id
+        description: >
+          Surrogate key for the listening session, derived from the MD5 hash of
+          the session group number and session start timestamp.
+        tests:
+          - not_null
+      - name: track_id
+        description: "{{ doc('doc__track_id') }}"
+        tests:
+          - not_null
+      - name: played_at
+        description: "{{ doc('doc__played_at') }}"
+        tests:
+          - not_null
+      - name: session_start_ts
+        description: "Timestamp of the first track played in this listening session."
+      - name: session_end_ts
+        description: "Timestamp of the last track played in this listening session."
+      - name: session_track_number
+        description: "Ordinal position of this track within the session (1-based)."
+      - name: gap_minutes
+        description: >
+          Minutes elapsed since the previous track was played.
+          Null for the first track in a session.
+
+  - name: int_artist_enrichment
+    description: >
+      Base artist dimension with placeholders for enriched data (genres, popularity,
+      follower count) to be populated via the Spotify Artist API in a future phase.
+      One row per distinct artist_id found in streaming history.
+    columns:
+      - name: artist_id
+        description: "{{ doc('doc__artist_id') }}"
+        tests:
+          - not_null
+      - name: artist_name
+        description: "Primary display name for the artist."
+      - name: genres
+        description: >
+          Array of genre tags associated with the artist from the Spotify API.
+          Placeholder — to be populated in Phase 3.
+      - name: popularity
+        description: >
+          Artist popularity score (0–100) from the Spotify API, based on total
+          play counts and recency. Placeholder — to be populated in Phase 3.
+      - name: follower_count
+        description: >
+          Total number of Spotify followers for the artist.
+          Placeholder — to be populated in Phase 3.
+      - name: last_updated
+        description: "Timestamp of the most recent enrichment refresh for this artist."
+
+  - name: int_time_features
+    description: >
+      Temporal features extracted from the played_at timestamp for analytical
+      convenience. One row per listen event, joining with stg_streaming_history.
+    columns:
+      - name: track_id
+        description: "{{ doc('doc__track_id') }}"
+        tests:
+          - not_null
+      - name: played_at
+        description: "{{ doc('doc__played_at') }}"
+      - name: hour_of_day
+        description: "Hour component extracted from played_at (0–23)."
+      - name: day_of_week
+        description: "Day of week (1=Sunday, 2=Monday, …, 7=Saturday)."
+      - name: month
+        description: "Month number extracted from played_at (1–12)."
+      - name: day_of_month
+        description: "Day of month extracted from played_at (1–31)."
+      - name: year
+        description: "Year extracted from played_at."
+      - name: is_weekend
+        description: "Boolean flag — true if played_at falls on a Saturday or Sunday."
+
+  - name: int_rolling_features
+    description: >
+      Rolling window aggregations per artist for the last 7 and 30 days. Computes
+      trailing averages of all audio features (energy, valence, danceability, tempo, etc.)
+      plus track count per artist. Used to power trend analysis and artist engagement metrics.
+    columns:
+      - name: artist_id
+        description: "{{ doc('doc__artist_id') }}"
+        tests:
+          - not_null
+      - name: listening_date
+        description: "Calendar date for the rolling window endpoint."
+      - name: avg_danceability
+        description: "Average danceability for this artist on this date."
+      - name: avg_energy
+        description: "Average energy for this artist on this date."
+      - name: avg_valence
+        description: "Average valence for this artist on this date."
+      - name: avg_tempo
+        description: "Average tempo in BPM for this artist on this date."
+      - name: avg_loudness
+        description: "Average loudness in dB for this artist on this date."
+      - name: avg_acousticness
+        description: "Average acousticness for this artist on this date."
+      - name: avg_instrumentalness
+        description: "Average instrumentalness for this artist on this date."
+      - name: avg_liveness
+        description: "Average liveness for this artist on this date."
+      - name: avg_speechiness
+        description: "Average speechiness for this artist on this date."
+      - name: listen_count
+        description: "Number of listens for this artist on this date."
+      - name: avg_danceability_7d
+        description: "7-day trailing average of danceability for this artist."
+      - name: avg_danceability_30d
+        description: "30-day trailing average of danceability for this artist."
+      - name: avg_energy_7d
+        description: "7-day trailing average of energy for this artist."
+      - name: avg_energy_30d
+        description: "30-day trailing average of energy for this artist."
+      - name: avg_valence_7d
+        description: "7-day trailing average of valence for this artist."
+      - name: avg_valence_30d
+        description: "30-day trailing average of valence for this artist."
+      - name: avg_tempo_7d
+        description: "7-day trailing average of tempo for this artist."
+      - name: avg_tempo_30d
+        description: "30-day trailing average of tempo for this artist."
+      - name: avg_loudness_7d
+        description: "7-day trailing average of loudness for this artist."
+      - name: avg_loudness_30d
+        description: "30-day trailing average of loudness for this artist."
+      - name: avg_acousticness_7d
+        description: "7-day trailing average of acousticness for this artist."
+      - name: avg_acousticness_30d
+        description: "30-day trailing average of acousticness for this artist."
+      - name: avg_instrumentalness_7d
+        description: "7-day trailing average of instrumentalness for this artist."
+      - name: avg_instrumentalness_30d
+        description: "30-day trailing average of instrumentalness for this artist."
+      - name: avg_liveness_7d
+        description: "7-day trailing average of liveness for this artist."
+      - name: avg_liveness_30d
+        description: "30-day trailing average of liveness for this artist."
+      - name: avg_speechiness_7d
+        description: "7-day trailing average of speechiness for this artist."
+      - name: avg_speechiness_30d
+        description: "30-day trailing average of speechiness for this artist."
+      - name: track_count_7d
+        description: "Number of listens for this artist in the trailing 7 days."
+      - name: track_count_30d
+        description: "Number of listens for this artist in the trailing 30 days."
+
+  - name: fct_listening
+    description: >
+      Fact table for individual listening events. Each row is one track listen
+      enriched with audio features, time features, and playback context.
+      This is the central fact table for most analytical queries.
+    columns:
+      - name: track_id
+        description: "{{ doc('doc__track_id') }}"
+        tests:
+          - not_null
+      - name: track_name
+        description: "Track title."
+      - name: artist_name
+        description: "Primary artist name."
+      - name: artist_id
+        description: "{{ doc('doc__artist_id') }}"
+      - name: album_name
+        description: "Album name."
+      - name: album_id
+        description: "Spotify album identifier."
+      - name: played_at
+        description: "{{ doc('doc__played_at') }}"
+        tests:
+          - not_null
+      - name: context
+        description: "Playback context (playlist, album, artist, or null)."
+      - name: danceability
+        description: "Danceability score (0.0–1.0)."
+      - name: energy
+        description: "Energy score (0.0–1.0)."
+      - name: valence
+        description: "Valence score (0.0–1.0)."
+      - name: tempo
+        description: "Tempo in BPM."
+      - name: duration_ms
+        description: "{{ doc('doc__duration_ms') }}"
+      - name: key
+        description: "Musical key (0–11, -1 = no key)."
+      - name: loudness
+        description: "Loudness in decibels (dB)."
+      - name: mode
+        description: "Modality — major (1) or minor (0)."
+      - name: speechiness
+        description: "Speechiness score (0.0–1.0)."
+      - name: acousticness
+        description: "Acousticness score (0.0–1.0)."
+      - name: instrumentalness
+        description: "Instrumentalness score (0.0–1.0)."
+      - name: liveness
+        description: "Liveness score (0.0–1.0)."
+      - name: time_signature
+        description: "Time signature (3–7)."
+      - name: hour_of_day
+        description: "Hour the track was played (0–23)."
+      - name: day_of_week
+        description: "Day of week (1=Sunday, …, 7=Saturday)."
+      - name: month
+        description: "Month the track was played (1–12)."
+      - name: is_weekend
+        description: "Whether the track was played on a weekend."
+
+  - name: dim_track
+    description: >
+      Track dimension with one row per track_id, enriched with the latest audio
+      features. Deduplication keeps the most recently fetched feature row per
+      track. Designed for slowly-changing dimension patterns.
+    columns:
+      - name: track_id
+        description: "{{ doc('doc__track_id') }}"
+        tests:
+          - not_null
+          - unique
+      - name: track_name
+        description: "Track title."
+      - name: artist_name
+        description: "Primary artist name."
+      - name: artist_id
+        description: "{{ doc('doc__artist_id') }}"
+      - name: album_name
+        description: "Album name."
+      - name: album_id
+        description: "Spotify album identifier."
+      - name: danceability
+        description: "Danceability score (0.0–1.0)."
+      - name: energy
+        description: "Energy score (0.0–1.0)."
+      - name: key
+        description: "Musical key (0–11, -1 = no key)."
+      - name: loudness
+        description: "Loudness in decibels (dB)."
+      - name: mode
+        description: "Modality — major (1) or minor (0)."
+      - name: speechiness
+        description: "Speechiness score (0.0–1.0)."
+      - name: acousticness
+        description: "Acousticness score (0.0–1.0)."
+      - name: instrumentalness
+        description: "Instrumentalness score (0.0–1.0)."
+      - name: liveness
+        description: "Liveness score (0.0–1.0)."
+      - name: valence
+        description: "Valence score (0.0–1.0)."
+      - name: tempo
+        description: "Tempo in BPM."
+      - name: time_signature
+        description: "Time signature (3–7)."
+      - name: duration_ms
+        description: "{{ doc('doc__duration_ms') }}"
+      - name: fetched_at
+        description: "Timestamp when the feature data was last retrieved."
+
+  - name: dim_artist
+    description: >
+      Artist dimension with one row per distinct artist_id from streaming history.
+      Aggregates first and last listened timestamps and listen count.
+      Genre, popularity, and follower columns are placeholders for Phase 3 enrichment
+      via the Spotify Artist API.
+    columns:
+      - name: artist_id
+        description: "{{ doc('doc__artist_id') }}"
+        tests:
+          - not_null
+          - unique
+      - name: artist_name
+        description: "Primary display name for the artist."
+      - name: genres
+        description: "Array of genre tags (NULL until Phase 3 API enrichment)."
+      - name: popularity
+        description: "Artist popularity score 0–100 (NULL until Phase 3)."
+      - name: follower_count
+        description: "Total Spotify followers (NULL until Phase 3)."
+      - name: first_listened
+        description: "Timestamp of the first listen event for this artist."
+      - name: last_listened
+        description: "Timestamp of the most recent listen event for this artist."
+      - name: listen_count
+        description: "Total number of times this artist has been played."
+      - name: last_updated
+        description: "Timestamp of when this row was last refreshed."
+
+  - name: fct_daily_summary
+    description: >
+      Daily aggregated listening summary. One row per calendar date with totals
+      for minutes listened, unique tracks, unique artists, and listen count.
+      The primary table for daily listening trend analysis.
+    columns:
+      - name: listening_date
+        description: "Calendar date of the listening activity."
+        tests:
+          - not_null
+          - unique
+      - name: minutes_listened
+        description: >
+          Total minutes listened on this date, computed as
+          sum(duration_ms) / 60000.0 across all listens.
+      - name: track_count
+        description: "Number of distinct tracks played on this date."
+      - name: artist_count
+        description: "Number of distinct artists played on this date."
+      - name: listen_count
+        description: "Total number of listen events on this date."
+
+  - name: fct_artist_concentration
+    description: >
+      Daily listening concentration metrics. Computes each artist's share of daily
+      listening, the Herfindahl-Hirschman Index (HHI) on a 0–10000 scale, top-1
+      concentration, and top-5 concentration. Measures listening diversity over time.
+    columns:
+      - name: listening_date
+        description: "Calendar date of listening activity."
+        tests:
+          - not_null
+      - name: total_listens
+        description: "Total number of listen events on this date."
+      - name: top_artist_name
+        description: "Name of the most-played artist on this date."
+      - name: top_artist_share
+        description: "Share of daily listens for the top artist (0.0–1.0)."
+      - name: top5_artist_concentration
+        description: "Cumulative share of daily listens for the top 5 artists (0.0–1.0)."
+      - name: hhi
+        description: >
+          Herfindahl-Hirschman Index measuring listening concentration.
+          Scale 0–10000 where higher values indicate more concentrated listening.
+
+  - name: fct_genre_trends
+    description: >
+      Daily genre-level listening trends. Aggregates listens by genre (sourced from
+      dim_artist genre arrays, falling back to artist_name as proxy when genre data
+      is not yet populated). Enables analysis of genre popularity shifts over time.
+    columns:
+      - name: listening_date
+        description: "Calendar date of listening activity."
+        tests:
+          - not_null
+      - name: genre
+        description: "Genre name (e.g. Rock, Pop, Electronic), or artist name as proxy."
+        tests:
+          - not_null
+      - name: listen_count
+        description: "Number of listens for this genre on this date."
+      - name: share_of_day
+        description: "Fraction of daily listening attributed to this genre (0.0–1.0)."
