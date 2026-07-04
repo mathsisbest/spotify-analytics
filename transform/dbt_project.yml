@@ -1,0 +1,52 @@
+name: spotify_analytics
+profile: spotify_analytics
+version: "1.0.0"
+config-version: 2
+
+model-paths:
+  - models/staging
+  - models/intermediate
+  - models/marts
+test-paths:
+  - tests
+seed-paths:
+  - seeds
+analysis-paths:
+  - analysis
+macro-paths:
+  - macros
+snapshot-paths:
+  - snapshots
+docs-paths:
+  - docs
+target-path: target
+clean-targets:
+  - target
+  - dbt_packages
+
+vars:
+  raw_dataset: "{{ env_var('RAW_DATASET', 'raw') }}"
+
+models:
+  spotify_analytics:
+    staging:
+      +materialized: view
+      +tags:
+        - staging
+        - ci
+    intermediate:
+      +materialized: ephemeral
+      +tags:
+        - intermediate
+        - ci
+    marts:
+      +materialized: table
+      +tags:
+        - marts
+        - ci
+
+seeds:
+  spotify_analytics:
+    +schema: seeds
+    +tags:
+      - ci

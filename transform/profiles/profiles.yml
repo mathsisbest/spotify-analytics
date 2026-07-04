@@ -1,0 +1,45 @@
+spotify_analytics:
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('BQ_PROJECT_DEV', 'spotify-analytics-dev') }}"
+      dataset: "{{ env_var('BQ_DATASET_PREFIX', 'dev') }}_spotify_analytics"
+      threads: 4
+      keyfile: "{{ env_var('BQ_KEYFILE_PATH', '') }}"
+      location: US
+      priority: interactive
+      job_creation_timeout_seconds: 300
+      job_execution_timeout_seconds: 600
+      retries: 1
+
+    ci:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('BQ_PROJECT_CI', 'spotify-analytics-ci') }}"
+      dataset: "{{ env_var('BQ_DATASET_CI', 'ci') }}_spotify_analytics"
+      threads: 2
+      keyfile: "{{ env_var('BQ_KEYFILE_PATH', '') }}"
+      location: US
+      priority: interactive
+      job_creation_timeout_seconds: 300
+      job_execution_timeout_seconds: 600
+      retries: 0
+      dataset_labels:
+        purpose: ci
+      maximum_bytes_billed: "{{ env_var('BQ_MAX_BYTES_CI', '1073741824') }}"
+
+    prod:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('BQ_PROJECT_PROD', 'spotify-analytics-prod') }}"
+      dataset: "{{ env_var('BQ_DATASET_PROD', 'prod') }}_spotify_analytics"
+      threads: 8
+      keyfile: "{{ env_var('BQ_KEYFILE_PATH', '') }}"
+      location: US
+      priority: interactive
+      job_creation_timeout_seconds: 300
+      job_execution_timeout_seconds: 3600
+      retries: 2
+
+  target: dev
