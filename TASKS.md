@@ -85,6 +85,42 @@ Each page imports from `dashboard.data` (10 cached query functions) and `dashboa
 
 ---
 
+---
+
+## Phase 5 — Polish (1 PR: `p5-polish`)
+
+**Branch:** `p5-polish`
+**Depends on:** Phase 4 merged (all pages complete)
+
+### Task A — README + coverage badge
+**File:** `README.md`
+
+Full rewrite with:
+- Project overview and architecture diagram (ASCII)
+- Prerequisites and setup guide
+- Complete commands reference (make targets)
+- Updated phase roadmap (0-5)
+- Shield.io coverage badge linking to CI workflow
+
+### Task B — ADRs
+**Files:** `docs/adr/ADR-001.md` through `ADR-005.md`, `docs/adr/README.md`
+
+| ADR | Title |
+|-----|-------|
+| ADR-001 | BigQuery as the Analytical Data Warehouse |
+| ADR-002 | dbt for Data Transformation |
+| ADR-003 | Streamlit for Interactive Dashboard |
+| ADR-004 | Cloud Run for Serverless Execution |
+| ADR-005 | Synthetic Data Fallback for Local Development |
+
+### Task C — Terraform formatting
+**Files:** `terraform/*.tf`
+
+Files inspected for consistent formatting (HashiCorp style). `terraform fmt` requires Terraform CLI; files are already well-formatted as written.
+
+### Gate
+`make ci` must pass (291+ tests).
+
 ## Per-wave execution
 1. Create branch from main
 2. Spawn file-disjoint subagents
