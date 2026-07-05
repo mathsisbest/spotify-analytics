@@ -66,19 +66,22 @@ def get_raw_history() -> list[dict[str, Any]]
 **Branch:** `p4-dashboard-pages`
 **Depends on:** Wave 1 merged (data.py contract frozen)
 
-### Tasks (all file-disjoint)
+### Contracts
 
-Each file in `dashboard/pages/*.py` implements one Streamlit page using functions from `data.py` and chart components from `components/`.
+Each page imports from `dashboard.data` (10 cached query functions) and `dashboard.components` (chart wrappers + `kpi_card`). Pages are pure Streamlit — no business logic beyond date range selection.
 
-| Task | File | Content |
-|------|------|---------|
-| D | `dashboard/pages/now_playing.py` | Recent tracks table, "now playing" indicator |
-| E | `dashboard/pages/year_in_review.py` | KPIs, heatmap, top artists/tracks/genres |
-| F | `dashboard/pages/genre_explorer.py` | Genre share area chart, transition sankey |
-| G | `dashboard/pages/mood_map.py` | Energy×valence scatter by cluster |
-| H | `dashboard/pages/forecast.py` | 14-day prediction with CI bands |
-| I | `dashboard/pages/recommendations.py` | Cluster-based track suggestions |
-| J | `dashboard/pages/raw_truth.py` | Searchable full listen history |
+| # | File | Data functions | Components | Layout |
+|---|------|----------------|------------|--------|
+| 1 | `pages/01_overview.py` | `get_recent_tracks`, `get_daily_summary` | `kpi_card`, `time_series_chart` | KPIs row → daily trend → recent tracks table |
+| 2 | `pages/02_top_artists.py` | `get_top_artists` | `bar_chart` | Horizontal bar → ranked table |
+| 3 | `pages/03_top_tracks.py` | `get_top_tracks` | `bar_chart` | Horizontal bar → ranked table |
+| 4 | `pages/04_genre_trends.py` | `get_genre_trends` | `area_chart` | Date slider → area chart |
+| 5 | `pages/05_listening_patterns.py` | `get_listening_heatmap` | `heatmap_chart` | Heatmap → peak-hour insights |
+| 6 | `pages/06_mood_map.py` | `get_mood_map` | `scatter_chart` | Scatter (energy × danceability, color=cluster) → feature description |
+| 7 | `pages/07_ml_insights.py` | `get_forecast`, `get_recommendations` | `time_series_chart` | Forecast CI chart → recs table |
+
+### Gate
+`make ci` must pass (291+ tests).
 
 ---
 
