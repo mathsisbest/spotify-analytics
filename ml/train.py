@@ -19,11 +19,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
-from ml.features import (
-    build_cluster_features,
-    build_forecast_features,
-    build_skip_prediction_features,
-)
+from ml.features import build_cluster_features, build_skip_prediction_features
 from ml.forecast import forecast_listening_volume
 
 CLUSTER_FEATURES = [
@@ -132,8 +128,6 @@ def _generate_synthetic_history(days: int = 180) -> pd.Series:
 
 
 def train_forecast() -> dict[str, Any]:
-    _ = build_forecast_features()
-
     days = 14
     history = _generate_synthetic_history()
 
