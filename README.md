@@ -43,25 +43,113 @@ End-to-end platform that ingests Spotify listening history, enriches it with aud
 
 - Python 3.11+
 - A [Spotify Developer App](https://developer.spotify.com/dashboard) (Client ID + Secret)
-- A GCP project with BigQuery, Cloud Run, Cloud Functions, and Cloud Scheduler enabled
+- A GCP project with billing enabled
+- [gcloud CLI](https://cloud.google.com/sdk/docs/install) installed and authenticated
 - [Terraform](https://developer.hashicorp.com/terraform/downloads) v1.5+ (for infrastructure)
 - [dbt](https://docs.getdbt.com/docs/core/installation) (for data transformations)
 
-## Quickstart
+## Full Setup Guide
+
+### 1. Install tools
 
 ```bash
-# Install the package with dev dependencies
-make install
+# Install gcloud CLI (macOS)
+brew install --cask google-cloud-sdk
 
-# Copy environment config and fill in your credentials
-cp .env.example .env
+# Install Terraform
+brew install terraform
 
-# Run the full gate (lint → typecheck → test)
-make ci
-
-# Run tests individually
-make test
+# Authenticate gcloud
+gcloud auth login
+gcloud auth application-default login
 ```
+
+### 2. Create a GCP project
+
+```bash
+gcloud projects create spotify-analytics --name="Spotify Analytics"
+gcloud config set project spotify-analytics
+
+# Enable billing (you must attach a billing account via the console)
+gcloud beta billing accounts list  # find your billing account ID
+gcloud beta billing projects link spotify-analytics \
+  --billing-account=YOUR_BILLING_ACCOUNT_ID
+```
+
+### 3. Create a service account
+
+```bash
+gcloud iam service-accounts create terraform \
+  --display-name="Terraform deployment"
+gcloud projects add-iam-policy-binding spotify-analytics \
+  --member="serviceAccount:terraform@spotify-analytics.iam.gserviceaccount.com" \
+  --role="roles/editor"
+gcloud iam service-accounts keys create ~/gcp-terraform-key.json \
+  --iam-account=terraform@spotify-analytics.iam.gserviceaccount.com
+export GOOGLE_APPLICATION_CREDENTIALS=~/gcp-terraform-key.json
+```
+
+### 4. Create a Spotify Developer App
+
+1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Click **Create app**, name it `spotify-analytics`
+3. Add redirect URI: `http://localhost:8888/callback`
+4. Save your **Client ID** and **Client Secret**
+
+### 5. Get a refresh token
+
+```bash
+python scripts/get_refresh_token.py \
+  --client-id YOUR_CLIENT_ID \
+  --client-secret YOUR_CLIENT_SECRET
+```
+
+This opens a browser for Spotify authorization, then prints your refresh token.
+
+### 6. Configure secrets
+
+```bash
+# Terraform vars (for infrastructure)
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+# Fill in: project_id, spotify_client_id, spotify_client_secret, spotify_refresh_token
+
+# Local env vars (for development)
+cp .env.example .env
+# Fill in: SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN, GCP_PROJECT_ID
+```
+
+### 7. Deploy infrastructure
+
+```bash
+cd terraform/
+terraform init
+terraform apply  # type "yes" to confirm
+cd ..
+```
+
+### 8. Build and deploy the dashboard
+
+```bash
+export GCP_PROJECT_ID=spotify-analytics
+gcloud auth configure-docker us-central1-docker.pkg.dev
+docker build -f dashboard/Dockerfile -t dashboard dashboard/
+docker tag dashboard us-central1-docker.pkg.dev/$GCP_PROJECT_ID/spotify-dashboard/dashboard:latest
+docker push us-central1-docker.pkg.dev/$GCP_PROJECT_ID/spotify-dashboard/dashboard:latest
+gcloud run deploy spotify-dashboard \
+  --image us-central1-docker.pkg.dev/$GCP_PROJECT_ID/spotify-dashboard/dashboard:latest \
+  --region us-central1 --allow-unauthenticated
+```
+
+## Local Development
+
+```bash
+make install
+cp .env.example .env  # fill in credentials
+make ci               # full gate
+make test             # pytest with coverage
+```
+
+The dashboard runs offline using synthetic data — no GCP or Spotify credentials needed.
 
 ## Commands
 
@@ -103,15 +191,4 @@ spotify-analytics/
 | 4 | BI dashboard — Streamlit multi-page app with synthetic fallback | Done |
 | 5 | Polish — ADRs, README, coverage badge, Terraform fmt | Done |
 
-## Deployment
-
-Infrastructure is managed via Terraform:
-
-```bash
-cd terraform/
-cp terraform.tfvars.example terraform.tfvars  # fill in secrets
-terraform init
-terraform apply
-```
-
-The CI pipeline (`main` branch) automatically builds and deploys the dashboard to Cloud Run.
+The CI pipeline (`main` branch) automatically builds and deploys the dashboard to Cloud Run on every push.
