@@ -1,6 +1,85 @@
 version: 2
 
 sources:
+  - name: marts
+    database: "{{ env_var('BQ_PROJECT', env_var('BQ_PROJECT_DEV', 'spotify-analytics')) }}"
+    schema: "{{ env_var('MARTS_DATASET', 'marts') }}"
+    description: "ML training outputs written to the marts layer."
+
+    tables:
+      - name: ml_cluster_assignments
+        description: >
+          K-means cluster assignments for tracks based on audio features.
+          One row per track_id per training run.
+        columns:
+          - name: track_id
+            description: "Spotify track ID."
+          - name: cluster_id
+            description: "Assigned cluster label (0-based)."
+          - name: danceability
+            description: "Danceability score (0.0–1.0) used as a clustering feature."
+          - name: energy
+            description: "Energy score (0.0–1.0) used as a clustering feature."
+          - name: valence
+            description: "Valence score (0.0–1.0) used as a clustering feature."
+          - name: tempo
+            description: "Tempo in BPM used as a clustering feature."
+          - name: loudness
+            description: "Loudness in dB used as a clustering feature."
+          - name: speechiness
+            description: "Speechiness score (0.0–1.0) used as a clustering feature."
+          - name: acousticness
+            description: "Acousticness score (0.0–1.0) used as a clustering feature."
+          - name: instrumentalness
+            description: "Instrumentalness score (0.0–1.0) used as a clustering feature."
+          - name: liveness
+            description: "Liveness score (0.0–1.0) used as a clustering feature."
+          - name: key
+            description: "Musical key (0–11) used as a clustering feature."
+          - name: mode
+            description: "Modality — major (1) or minor (0) used as a clustering feature."
+          - name: time_signature
+            description: "Time signature (3–7) used as a clustering feature."
+          - name: duration_ms
+            description: "Track duration in milliseconds."
+          - name: run_id
+            description: "UUID for the ML training run."
+          - name: trained_at
+            description: "Timestamp when the model was trained."
+
+      - name: ml_model_metrics
+        description: >
+          Evaluation metrics from ML training runs. One row per metric
+          per model type per training run.
+        columns:
+          - name: model_type
+            description: "Model category: cluster, predict, or forecast."
+          - name: metric_name
+            description: "Metric identifier (e.g. silhouette_score, inertia, mae)."
+          - name: metric_value
+            description: "Numeric value of the metric."
+          - name: run_id
+            description: "UUID for the ML training run."
+          - name: trained_at
+            description: "Timestamp when the model was trained."
+
+      - name: ml_forecast
+        description: >
+          Time-series forecast of listening minutes.
+          One row per forecast date per training run with prediction intervals.
+        columns:
+          - name: forecast_date
+            description: "Predicted calendar date."
+          - name: predicted_minutes
+            description: "Forecasted minutes listened."
+          - name: lower_bound
+            description: "Lower bound of the prediction interval."
+          - name: upper_bound
+            description: "Upper bound of the prediction interval."
+          - name: run_id
+            description: "UUID for the ML training run."
+          - name: trained_at
+            description: "Timestamp when the model was trained."
   - name: raw
     database: "{{ env_var('BQ_PROJECT', env_var('BQ_PROJECT_DEV', 'spotify-analytics')) }}"
     schema: "{{ env_var('RAW_DATASET', 'raw') }}"

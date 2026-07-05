@@ -35,3 +35,13 @@ output "artifact_registry_repo" {
   description = "Artifact Registry repository for dashboard images"
   value       = google_artifact_registry_repository.dashboard.name
 }
+
+output "ml_job_name" {
+  description = "Cloud Run Job name for ML training"
+  value       = google_cloud_run_v2_job.ml_training.name
+}
+
+output "ml_scheduler_job_name" {
+  description = "Cloud Scheduler job name for ML training trigger"
+  value       = google_cloud_scheduler_job.ml_training_trigger.name
+}

@@ -101,3 +101,56 @@ resource "google_bigquery_dataset" "marts" {
     layer = "marts"
   }
 }
+
+# ── ML model outputs ────────────────────────────────────────────
+resource "google_bigquery_table" "ml_cluster_assignments" {
+  dataset_id = google_bigquery_dataset.marts.dataset_id
+  table_id   = "ml_cluster_assignments"
+  schema     = jsonencode([
+    { name = "track_id",         type = "STRING",   mode = "REQUIRED" },
+    { name = "cluster_id",       type = "INTEGER",  mode = "REQUIRED" },
+    { name = "danceability",     type = "FLOAT64",  mode = "NULLABLE" },
+    { name = "energy",           type = "FLOAT64",  mode = "NULLABLE" },
+    { name = "valence",          type = "FLOAT64",  mode = "NULLABLE" },
+    { name = "tempo",            type = "FLOAT64",  mode = "NULLABLE" },
+    { name = "loudness",         type = "FLOAT64",  mode = "NULLABLE" },
+    { name = "speechiness",      type = "FLOAT64",  mode = "NULLABLE" },
+    { name = "acousticness",     type = "FLOAT64",  mode = "NULLABLE" },
+    { name = "instrumentalness", type = "FLOAT64",  mode = "NULLABLE" },
+    { name = "liveness",         type = "FLOAT64",  mode = "NULLABLE" },
+    { name = "key",              type = "INTEGER",  mode = "NULLABLE" },
+    { name = "mode",             type = "INTEGER",  mode = "NULLABLE" },
+    { name = "time_signature",   type = "INTEGER",  mode = "NULLABLE" },
+    { name = "duration_ms",      type = "INTEGER",  mode = "NULLABLE" },
+    { name = "run_id",           type = "STRING",   mode = "REQUIRED" },
+    { name = "trained_at",       type = "TIMESTAMP", mode = "REQUIRED" },
+  ])
+  labels = { layer = "marts" }
+}
+
+resource "google_bigquery_table" "ml_model_metrics" {
+  dataset_id = google_bigquery_dataset.marts.dataset_id
+  table_id   = "ml_model_metrics"
+  schema     = jsonencode([
+    { name = "model_type",   type = "STRING",  mode = "REQUIRED" },
+    { name = "metric_name",  type = "STRING",  mode = "REQUIRED" },
+    { name = "metric_value", type = "FLOAT64", mode = "REQUIRED" },
+    { name = "run_id",       type = "STRING",  mode = "REQUIRED" },
+    { name = "trained_at",   type = "TIMESTAMP", mode = "REQUIRED" },
+  ])
+  labels = { layer = "marts" }
+}
+
+resource "google_bigquery_table" "ml_forecast" {
+  dataset_id = google_bigquery_dataset.marts.dataset_id
+  table_id   = "ml_forecast"
+  schema     = jsonencode([
+    { name = "forecast_date",     type = "DATE",    mode = "REQUIRED" },
+    { name = "predicted_minutes", type = "FLOAT64", mode = "REQUIRED" },
+    { name = "lower_bound",       type = "FLOAT64", mode = "NULLABLE" },
+    { name = "upper_bound",       type = "FLOAT64", mode = "NULLABLE" },
+    { name = "run_id",            type = "STRING",  mode = "REQUIRED" },
+    { name = "trained_at",        type = "TIMESTAMP", mode = "REQUIRED" },
+  ])
+  labels = { layer = "marts" }
+}
