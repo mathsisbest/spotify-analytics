@@ -1,82 +1,91 @@
-# Phase 3 — ML / AI Roadmap
+# Phase 4 — BI Dashboard
 
-## Wave 1 (done)
-Feature engineering, forecast, recommender, training pipeline.
+## Wave 1 — Foundation (1 PR: `p4-dashboard-foundation`)
 
-## Wave 2 — ML outputs dbt marts + Cloud Run Job
+**Branch:** `p4-dashboard-foundation`
+**Contract:** data.py exposes functions that return synthetic data when BQ unavailable, real data when `st.connection("bigquery")` works.
 
-### Locked schema contracts
+### Task A — Data layer
+**Files:** `dashboard/data.py`, `tests/test_dashboard.py`
 
-All ML tables live in the `marts` dataset:
+Functions to implement (all with `@st.cache_data`):
 
-**`ml_cluster_assignments`**
-| Column | Type | Notes |
-|--------|------|-------|
-| track_id | STRING | |
-| cluster_id | INT64 | -1 = noise |
-| danceability | FLOAT64 | |
-| energy | FLOAT64 | |
-| valence | FLOAT64 | |
-| tempo | FLOAT64 | |
-| loudness | FLOAT64 | |
-| speechiness | FLOAT64 | |
-| acousticness | FLOAT64 | |
-| instrumentalness | FLOAT64 | |
-| liveness | FLOAT64 | |
-| key | INT64 | |
-| mode | INT64 | |
-| time_signature | INT64 | |
-| duration_ms | INT64 | |
-| run_id | STRING | UUID for this training run |
-| trained_at | TIMESTAMP | When the model was trained |
+```python
+def get_recent_tracks(limit: int = 20) -> list[dict[str, Any]]
+# Synthetic fallback with pandas-generated recent track data
 
-**`ml_model_metrics`**
-| Column | Type | Notes |
-|--------|------|-------|
-| model_type | STRING | 'cluster', 'predict', 'forecast' |
-| metric_name | STRING | e.g. 'silhouette_score' |
-| metric_value | FLOAT64 | |
-| run_id | STRING | UUID for this training run |
-| trained_at | TIMESTAMP | |
+def get_daily_summary(start_date: str, end_date: str) -> list[dict[str, Any]]
+# Synthetic fallback for daily minutes, track count, artist count
 
-**`ml_forecast`**
-| Column | Type | Notes |
-|--------|------|-------|
-| forecast_date | DATE | |
-| predicted_minutes | FLOAT64 | Point forecast |
-| lower_bound | FLOAT64 | 95% CI lower |
-| upper_bound | FLOAT64 | 95% CI upper |
-| run_id | STRING | |
-| trained_at | TIMESTAMP | |
+def get_top_artists(limit: int = 10) -> list[dict[str, Any]]
+# Synthetic fallback for top artists by listen count
 
-### Wave 2a (parallel — no file overlap)
+def get_top_tracks(limit: int = 10) -> list[dict[str, Any]]
+# Synthetic fallback for top tracks by listen count
 
-**Task A — ML job entrypoint + BQ loader**
-- Files: `ml/load.py`, `ml/job.py`, `tests/test_ml_job.py`
-- `ml/load.py`: functions to write cluster assignments, metrics, and forecasts to BigQuery
-- `ml/job.py`: CLI entrypoint that runs all 3 train modes and writes results to BQ
-- Each write function accepts a `client` (mockable) for testability
-- Tests use mocked BigQuery client
+def get_genre_trends(start_date: str, end_date: str) -> list[dict[str, Any]]
+# Synthetic fallback for genre share over time
 
-**Task B — ML Docker container**
-- Files: `ml/requirements.txt`, `ml/Dockerfile`
-- Docker image runs `python -m ml.job` with all deps
+def get_listening_heatmap() -> list[dict[str, Any]]
+# Synthetic 7x24 hour/day heatmap data
 
-**Task C — dbt marts for ML outputs**
-- Files: `transform/models/marts/ml_cluster_assignments.sql`, `transform/models/marts/ml_model_metrics.sql`, `transform/models/marts/ml_forecast.sql`
-- Update `transform/models/schema.yml` with column-level tests
-- Each is a simple table materialization (or view over what the job writes)
+def get_mood_map() -> list[dict[str, Any]]
+# Synthetic tracks with danceability, energy, valence, cluster_id
 
-### Wave 2b (depends on Wave 2a schema)
+def get_forecast() -> list[dict[str, Any]]
+# Synthetic forecast with date, predicted_minutes, lower_bound, upper_bound
 
-**Task D — Terraform updates**
-- Files: `terraform/bigquery.tf` (add ML tables), `terraform/ml_job.tf` (new — Cloud Run Job + scheduler + SA)
+def get_recommendations() -> list[dict[str, Any]]
+# Synthetic recs with track_name, artist_name, score
+
+def get_raw_history() -> list[dict[str, Any]]
+# Full synthetic listen history table
+```
+
+### Task B — App shell + requirements
+**Files:** `dashboard/app.py`, `dashboard/requirements.txt`
+
+- Refactor `app.py` to use Streamlit `pages/` structure
+- Add `st.logo`, sidebar config
+- Create `dashboard/requirements.txt` with: streamlit, pandas, plotly, google-cloud-bigquery
+
+### Task C — Theme + components
+**Files:** `dashboard/theme.py`, `dashboard/components/charts.py`, `dashboard/components/kpi.py`
+
+- Wire Spotify dark theme into chart components (use `pio.templates.default = "spotify"`)
+- Ensure all chart wrappers pass `template="spotify"` to Plotly calls
+- Update `kpi_card` to use Spotify green accent
+
+### Gate
+`make ci` must pass (217+ tests).
+
+---
+
+## Wave 2 — Pages (1 PR: `p4-dashboard-pages`)
+
+**Branch:** `p4-dashboard-pages`
+**Depends on:** Wave 1 merged (data.py contract frozen)
+
+### Tasks (all file-disjoint)
+
+Each file in `dashboard/pages/*.py` implements one Streamlit page using functions from `data.py` and chart components from `components/`.
+
+| Task | File | Content |
+|------|------|---------|
+| D | `dashboard/pages/now_playing.py` | Recent tracks table, "now playing" indicator |
+| E | `dashboard/pages/year_in_review.py` | KPIs, heatmap, top artists/tracks/genres |
+| F | `dashboard/pages/genre_explorer.py` | Genre share area chart, transition sankey |
+| G | `dashboard/pages/mood_map.py` | Energy×valence scatter by cluster |
+| H | `dashboard/pages/forecast.py` | 14-day prediction with CI bands |
+| I | `dashboard/pages/recommendations.py` | Cluster-based track suggestions |
+| J | `dashboard/pages/raw_truth.py` | Searchable full listen history |
 
 ---
 
 ## Per-wave execution
-1. Architect locks contracts in TASKS.md
-2. Spawn file-disjoint agents in parallel
-3. Each agent self-gates with `make ci`
-4. I review adversarially
-5. Commit & push to main
+1. Create branch from main
+2. Spawn file-disjoint subagents
+3. Each agent gates with `make ci`
+4. I review adversarially, gate again
+5. Open PR with evidence block
+6. You review and merge in GitHub GUI
