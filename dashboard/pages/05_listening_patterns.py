@@ -8,7 +8,7 @@ st.header("Listening Patterns")
 data = get_listening_heatmap()
 
 if data:
-    days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     hours = [f"{h:02d}:00" for h in range(24)]
     z: list[list[float]] = [[0.0] * 24 for _ in range(7)]
     for row in data:

@@ -26,7 +26,7 @@ if summary:
     with col2:
         kpi_card("Tracks Played", str(total_tracks))
     with col3:
-        kpi_card("Unique Artists", str(total_artists))
+        kpi_card("Artist Appearances", str(total_artists))
 
     time_series_chart(
         summary,
