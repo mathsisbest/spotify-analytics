@@ -67,6 +67,7 @@ gcloud auth application-default login
 ### 2. Create a GCP project
 
 ```bash
+# Choose a globally unique project ID (spotify-analytics-X may work)
 gcloud projects create spotify-analytics --name="Spotify Analytics"
 gcloud config set project spotify-analytics
 
