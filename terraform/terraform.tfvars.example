@@ -1,0 +1,6 @@
+project_id = "your-gcp-project-id"
+# region      = "us-central1"
+
+spotify_client_id     = "your-spotify-client-id"
+spotify_client_secret = "your-spotify-client-secret"
+spotify_refresh_token = "your-spotify-refresh-token"

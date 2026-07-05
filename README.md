@@ -109,8 +109,9 @@ Infrastructure is managed via Terraform:
 
 ```bash
 cd terraform/
+cp terraform.tfvars.example terraform.tfvars  # fill in secrets
 terraform init
-terraform apply -var="project_id=your-project-id"
+terraform apply
 ```
 
 The CI pipeline (`main` branch) automatically builds and deploys the dashboard to Cloud Run.
