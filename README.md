@@ -193,3 +193,7 @@ spotify-analytics/
 | 5 | Polish — ADRs, README, coverage badge, Terraform fmt | Done |
 
 The CI pipeline (`main` branch) automatically builds and deploys the dashboard to Cloud Run on every push.
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
