@@ -34,8 +34,6 @@ resource "google_bigquery_dataset_iam_member" "ml_job_bq_read_raw" {
 resource "google_cloud_run_v2_job" "ml_training" {
   name         = "spotify-ml-training"
   location     = var.region
-  description  = "Weekly ML training pipeline: clustering, prediction, forecast"
-
   template {
     task_count = 1
 

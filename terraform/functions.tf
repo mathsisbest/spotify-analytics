@@ -2,7 +2,7 @@
 # Cloud Function (gen2) — Polls Spotify Recently Played + Audio Features
 # ---------------------------------------------------------------------------
 # Triggered by Pub/Sub topic (fired by Cloud Scheduler every 2 minutes).
-# Source code lives in ./functions/ at the repo root.
+# Source code lives in src/spotify_analytics/.
 
 # Pub/Sub topic that triggers the function
 resource "google_pubsub_topic" "ingestion_trigger" {

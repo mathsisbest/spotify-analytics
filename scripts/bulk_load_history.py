@@ -11,22 +11,23 @@ Usage:
 import argparse
 import json
 import time
+from datetime import datetime
 from pathlib import Path
 
 from google.cloud import bigquery
 
 
 def transform_record(record: dict[str, object]) -> dict[str, object]:
+    uri = record.get("spotify_track_uri", "")
+    track_id = uri.split(":")[-1] if isinstance(uri, str) and uri else record.get("track_id", "")
     return {
+        "track_id": track_id,
         "track_name": record.get("trackName") or record.get("track_name", ""),
         "artist_name": record.get("artistName") or record.get("artist_name", ""),
         "album_name": record.get("albumName") or record.get("album_name", ""),
-        "ms_played": record.get("msPlayed") or record.get("ms_played", 0),
-        "end_time": record.get("endTime") or record.get("end_time", ""),
-        "played_at": record.get("ts") or None,
-        "spotify_track_uri": (
-            record.get("spotifyTrackUri") or record.get("spotify_track_uri") or None
-        ),
+        "played_at": record.get("ts") or record.get("played_at", ""),
+        "duration_ms": record.get("msPlayed") or record.get("ms_played", 0),
+        "loaded_at": datetime.utcnow().isoformat(),
     }
 
 

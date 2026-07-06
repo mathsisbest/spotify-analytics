@@ -62,12 +62,17 @@ class SpotifyClient:
             if not played_at:
                 continue
             try:
+                album_data = track_data.get("album", {})
                 history_item = StreamingHistoryItem(
                     track_id=track_data.get("id", ""),
                     played_at=played_at,
                     track_name=track_data.get("name", ""),
+                    artist_id=artists[0].get("id", "") if artists else "",
+                    artist_name=artists[0].get("name", "") if artists else "",
+                    artist_ids=[a.get("id", "") for a in artists],
                     artist_names=[a.get("name", "") for a in artists],
-                    album_name=track_data.get("album", {}).get("name", ""),
+                    album_name=album_data.get("name", ""),
+                    album_id=album_data.get("id", ""),
                     duration_ms=track_data.get("duration_ms", 0),
                     context=item.get("context", {}).get("uri") if item.get("context") else None,
                 )

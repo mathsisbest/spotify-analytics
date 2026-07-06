@@ -9,7 +9,7 @@ select
     track_id,
     played_at,
     extract(hour from played_at) as hour_of_day,
-    extract(dayofweek from played_at) as day_of_week,
+    extract(dayofweek from played_at) - 1 as day_of_week,
     extract(month from played_at) as month,
     extract(day from played_at) as day_of_month,
     extract(year from played_at) as year,

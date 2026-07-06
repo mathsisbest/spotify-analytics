@@ -2,10 +2,7 @@ from typing import Any
 
 import plotly.express as px
 import plotly.graph_objects as go
-import plotly.io as pio
 import streamlit as st
-
-pio.templates.default = "spotify"
 
 
 def time_series_chart(
@@ -68,24 +65,6 @@ def heatmap_chart(
     fig = go.Figure(go.Heatmap(z=z, x=x, y=y))
     fig.update_layout(title=title, template="spotify", height=height)
     fig.update_traces(hovertemplate="x: %{x}<br>y: %{y}<br>value: %{z}<extra></extra>")
-    st.plotly_chart(fig, use_container_width=True)
-
-
-def sankey_chart(
-    labels: list[str],
-    source: list[int],
-    target: list[int],
-    value: list[float],
-    title: str = "",
-    height: int = 500,
-) -> None:
-    fig = go.Figure(
-        go.Sankey(node=dict(label=labels), link=dict(source=source, target=target, value=value))
-    )
-    fig.update_layout(title=title, template="spotify", height=height)
-    fig.update_traces(
-        hovertemplate="%{value} from %{source.label} to %{target.label}<extra></extra>"
-    )
     st.plotly_chart(fig, use_container_width=True)
 
 
