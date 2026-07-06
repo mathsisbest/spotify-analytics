@@ -1,7 +1,5 @@
 import streamlit as st
 
-SPOTIFY_GREEN = "#1DB954"
-
 
 def kpi_card(
     label: str,

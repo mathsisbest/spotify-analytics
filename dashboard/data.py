@@ -112,7 +112,7 @@ def get_listening_heatmap() -> list[dict[str, Any]]:
 def get_mood_map() -> list[dict[str, Any]]:
     try:
         conn = st.connection("bigquery", type="bigquery")
-        query = "SELECT * FROM marts.track_clusters"
+        query = "SELECT * FROM marts.ml_cluster_assignments"
         return cast(list[dict[str, Any]], conn.query(query).to_dicts())
     except Exception:
         return _synth_mood_map()

@@ -18,17 +18,18 @@ resource "google_bigquery_table" "streaming_history" {
   dataset_id = google_bigquery_dataset.raw.dataset_id
   table_id   = "streaming_history"
   schema     = jsonencode([
-    { name = "track_id",       type = "STRING", mode = "REQUIRED" },
-    { name = "track_name",     type = "STRING", mode = "REQUIRED" },
-    { name = "artist_name",    type = "STRING", mode = "REQUIRED" },
-    { name = "artist_ids",     type = "STRING", mode = "REPEATED" },
-    { name = "album_name",     type = "STRING", mode = "NULLABLE" },
-    { name = "album_id",       type = "STRING", mode = "NULLABLE" },
+    { name = "track_id",       type = "STRING",   mode = "REQUIRED" },
+    { name = "track_name",     type = "STRING",   mode = "REQUIRED" },
+    { name = "artist_id",      type = "STRING",   mode = "NULLABLE" },
+    { name = "artist_name",    type = "STRING",   mode = "NULLABLE" },
+    { name = "artist_ids",     type = "STRING",   mode = "REPEATED" },
+    { name = "artist_names",   type = "STRING",   mode = "REPEATED" },
+    { name = "album_name",     type = "STRING",   mode = "NULLABLE" },
+    { name = "album_id",       type = "STRING",   mode = "NULLABLE" },
     { name = "played_at",      type = "TIMESTAMP", mode = "REQUIRED" },
-    { name = "context",        type = "STRING", mode = "NULLABLE" },
-    { name = "ingested_at",    type = "TIMESTAMP", mode = "REQUIRED" },
-    { name = "duration_ms",    type = "INTEGER", mode = "NULLABLE" },
-    { name = "is_playing",     type = "BOOL", mode = "NULLABLE" },
+    { name = "context",        type = "STRING",   mode = "NULLABLE" },
+    { name = "duration_ms",    type = "INTEGER",  mode = "NULLABLE" },
+    { name = "loaded_at",      type = "TIMESTAMP", mode = "REQUIRED" },
   ])
   clustering = ["track_id", "played_at"]
   labels = {
@@ -65,13 +66,14 @@ resource "google_bigquery_table" "ingestion_runs" {
   dataset_id = google_bigquery_dataset.raw.dataset_id
   table_id   = "ingestion_runs"
   schema     = jsonencode([
-    { name = "run_id",         type = "STRING",   mode = "REQUIRED" },
-    { name = "started_at",     type = "TIMESTAMP", mode = "REQUIRED" },
-    { name = "finished_at",    type = "TIMESTAMP", mode = "NULLABLE" },
-    { name = "status",         type = "STRING",   mode = "REQUIRED" },
-    { name = "tracks_ingested", type = "INTEGER", mode = "NULLABLE" },
-    { name = "features_fetched", type = "INTEGER", mode = "NULLABLE" },
-    { name = "error_message",  type = "STRING",   mode = "NULLABLE" },
+    { name = "run_id",          type = "STRING",   mode = "REQUIRED" },
+    { name = "started_at",      type = "TIMESTAMP", mode = "REQUIRED" },
+    { name = "finished_at",     type = "TIMESTAMP", mode = "NULLABLE" },
+    { name = "status",          type = "STRING",   mode = "REQUIRED" },
+    { name = "rows_ingested",   type = "INTEGER",  mode = "NULLABLE" },
+    { name = "rows_enriched",   type = "INTEGER",  mode = "NULLABLE" },
+    { name = "error_message",   type = "STRING",   mode = "NULLABLE" },
+    { name = "duration_seconds", type = "FLOAT64", mode = "NULLABLE" },
   ])
   labels = {
     layer = "raw"

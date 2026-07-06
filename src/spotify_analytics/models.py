@@ -48,8 +48,12 @@ class StreamingHistoryItem(BaseModel):
     track_id: str
     played_at: str | datetime
     track_name: str = ""
+    artist_id: str = ""
+    artist_name: str = ""
+    artist_ids: list[str] = Field(default_factory=list)
     artist_names: list[str] = Field(default_factory=list)
     album_name: str = ""
+    album_id: str = ""
     duration_ms: int = 0
     context: str | None = None
 

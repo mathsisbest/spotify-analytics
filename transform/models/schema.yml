@@ -16,10 +16,14 @@ models:
               field: track_id
       - name: track_name
         description: "Track title as returned by the Spotify Web API."
-      - name: artist_name
-        description: "Primary artist name for the track."
       - name: artist_id
         description: "{{ doc('doc__artist_id') }}"
+      - name: artist_name
+        description: "Primary artist name for the track."
+      - name: artist_ids
+        description: "All Spotify artist IDs for multi-artist tracks."
+      - name: artist_names
+        description: "All artist names for multi-artist tracks."
       - name: album_name
         description: "Album name containing the track."
       - name: album_id
@@ -32,7 +36,9 @@ models:
         description: >
           Playback context indicating how the track was played.
           Possible values: playlist, album, artist, or null (manual selection).
-      - name: ingested_at
+      - name: duration_ms
+        description: "{{ doc('doc__duration_ms') }}"
+      - name: loaded_at
         description: "Timestamp when the raw row was written to the source table."
 
   - name: stg_track_features

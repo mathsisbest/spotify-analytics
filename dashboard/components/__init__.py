@@ -2,7 +2,6 @@ from dashboard.components.charts import (
     area_chart,
     bar_chart,
     heatmap_chart,
-    sankey_chart,
     scatter_chart,
     time_series_chart,
 )
@@ -13,7 +12,6 @@ __all__ = [
     "bar_chart",
     "heatmap_chart",
     "kpi_card",
-    "sankey_chart",
     "scatter_chart",
     "time_series_chart",
 ]
