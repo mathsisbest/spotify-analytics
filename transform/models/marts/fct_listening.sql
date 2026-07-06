@@ -37,7 +37,7 @@ time_features as (
 
 joined as (
     select
-        sb.*,
+        sb.* except (duration_ms),
         af.danceability,
         af.energy,
         af.key,
