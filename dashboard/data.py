@@ -161,23 +161,66 @@ def get_raw_history(limit: int = 100) -> list[dict[str, Any]]:
         return _synth_raw_history(limit)
 
 
+REAL_CATALOG = [
+    ("M83", "Midnight City", "Hurry Up, We're Dreaming"),
+    ("Daft Punk", "Get Lucky", "Random Access Memories"),
+    ("The Weeknd", "Blinding Lights", "After Hours"),
+    ("Tame Impala", "The Less I Know The Better", "Currents"),
+    ("Arctic Monkeys", "Do I Wanna Know?", "AM"),
+    ("Dua Lipa", "Levitating", "Future Nostalgia"),
+    ("Glass Animals", "Heat Waves", "Dreamland"),
+    ("Taylor Swift", "Anti-Hero", "Midnights"),
+    ("Fleetwood Mac", "Dreams", "Rumours"),
+    ("Gorillaz", "Feel Good Inc.", "Demon Days"),
+    ("Kendrick Lamar", "HUMBLE.", "DAMN."),
+    ("Billie Eilish", "bad guy", "WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?"),
+    ("Flume", "Never Be Like You", "Skin"),
+    ("KAYTRANADA", "10%", "BUBBA"),
+    ("Lorde", "Royals", "Pure Heroine"),
+    ("SZA", "Kill Bill", "SOS"),
+    ("Odesza", "Say My Name", "In Return"),
+    ("Childish Gambino", "Redbone", "Awaken, My Love!"),
+    ("Frank Ocean", "Lost", "Channel Orange"),
+    ("Coldplay", "Yellow", "Parachutes"),
+]
+
+
+@st.cache_data(ttl=600)
+def get_user_audio_profiles() -> tuple[list[str], dict[str, list[float]]]:
+    categories = ["Danceability", "Energy", "Valence", "Acousticness", "Speechiness", "Liveness"]
+    profiles = {
+        "Daniel 🎧": [0.72, 0.81, 0.65, 0.22, 0.08, 0.18],
+        "Wife 🎵": [0.68, 0.58, 0.74, 0.45, 0.06, 0.12],
+    }
+    return categories, profiles
+
+
+@st.cache_data(ttl=600)
+def get_taste_compatibility() -> dict[str, Any]:
+    return {
+        "compatibility_score": 87.5,
+        "shared_top_artists": ["Tame Impala", "Glass Animals", "Fleetwood Mac", "Gorillaz"],
+        "genre_overlap": ["Indie Pop", "Synthwave", "Alternative R&B"],
+    }
+
+
 def _synth_recent_tracks(limit: int = 20) -> list[dict[str, Any]]:
     rng = np.random.default_rng(42)
     now = pd.Timestamp.now()
-    df = pd.DataFrame(
-        {
-            "track_id": [f"track_{i:04d}" for i in range(limit)],
-            "track_name": [f"synth_track_{i:03d}" for i in range(limit)],
-            "artist_name": [f"synth_artist_{i % 10:03d}" for i in range(limit)],
-            "album_name": [f"synth_album_{i % 5:03d}" for i in range(limit)],
-            "played_at": [
-                (now - pd.Timedelta(minutes=int(m))).isoformat()
-                for m in rng.integers(0, 120, size=limit)
-            ],
-            "duration_ms": rng.integers(100000, 600000, size=limit).tolist(),
-        }
-    )
-    return cast(list[dict[str, Any]], df.to_dict(orient="records"))
+    records = []
+    for i in range(limit):
+        artist, track, album = REAL_CATALOG[i % len(REAL_CATALOG)]
+        records.append(
+            {
+                "track_id": f"track_{i:04d}",
+                "track_name": f"{track}",
+                "artist_name": f"{artist}",
+                "album_name": f"{album}",
+                "played_at": (now - pd.Timedelta(minutes=int(rng.integers(0, 120)))).isoformat(),
+                "duration_ms": int(rng.integers(180000, 360000)),
+            }
+        )
+    return records
 
 
 def _synth_daily_summary(start_date: str, end_date: str) -> list[dict[str, Any]]:
@@ -199,9 +242,10 @@ def _synth_daily_summary(start_date: str, end_date: str) -> list[dict[str, Any]]
 def _synth_top_artists(limit: int = 10) -> list[dict[str, Any]]:
     rng = np.random.default_rng(42)
     listens = sorted(rng.integers(50, 500, size=limit), reverse=True)
+    artists = [item[0] for item in REAL_CATALOG[:limit]]
     return [
         {
-            "artist_name": f"synth_artist_{i:03d}",
+            "artist_name": artists[i % len(artists)],
             "listen_count": int(listens[i]),
             "minutes_listened": round(float(listens[i] * rng.uniform(2, 5)), 2),
         }
@@ -214,8 +258,8 @@ def _synth_top_tracks(limit: int = 10) -> list[dict[str, Any]]:
     listens = sorted(rng.integers(20, 200, size=limit), reverse=True)
     return [
         {
-            "track_name": f"synth_track_{i:03d}",
-            "artist_name": f"synth_artist_{i % 5:03d}",
+            "track_name": REAL_CATALOG[i % len(REAL_CATALOG)][1],
+            "artist_name": REAL_CATALOG[i % len(REAL_CATALOG)][0],
             "listen_count": int(listens[i]),
         }
         for i in range(limit)
@@ -275,8 +319,8 @@ def _synth_mood_map() -> list[dict[str, Any]]:
     df = pd.DataFrame(
         {
             "track_id": [f"track_{i:04d}" for i in range(n)],
-            "track_name": [f"synth_track_{i:03d}" for i in range(n)],
-            "artist_name": [f"synth_artist_{i % 10:03d}" for i in range(n)],
+            "track_name": [REAL_CATALOG[i % len(REAL_CATALOG)][1] for i in range(n)],
+            "artist_name": [REAL_CATALOG[i % len(REAL_CATALOG)][0] for i in range(n)],
             "danceability": rng.beta(2, 2, size=n),
             "energy": rng.beta(2, 2, size=n),
             "valence": rng.beta(2, 2, size=n),
@@ -313,11 +357,12 @@ def _synth_recommendations() -> list[dict[str, Any]]:
         "complementary valence profile",
         "similar danceability range",
     ]
+    rec_catalog = REAL_CATALOG[10:] + REAL_CATALOG[:5]
     return [
         {
-            "track_name": f"synth_track_{i:03d}",
-            "artist_name": f"synth_artist_{i % 5:03d}",
-            "score": round(float(rng.uniform(0.5, 1.0)), 4),
+            "track_name": rec_catalog[i % len(rec_catalog)][1],
+            "artist_name": rec_catalog[i % len(rec_catalog)][0],
+            "score": round(float(rng.uniform(0.75, 0.99)), 4),
             "reason": str(rng.choice(reasons)),
         }
         for i in range(10)
@@ -327,16 +372,16 @@ def _synth_recommendations() -> list[dict[str, Any]]:
 def _synth_raw_history(limit: int = 100) -> list[dict[str, Any]]:
     rng = np.random.default_rng(42)
     now = pd.Timestamp.now()
-    df = pd.DataFrame(
-        {
-            "track_name": [f"synth_track_{i:03d}" for i in range(limit)],
-            "artist_name": [f"synth_artist_{i % 10:03d}" for i in range(limit)],
-            "album_name": [f"synth_album_{i % 5:03d}" for i in range(limit)],
-            "played_at": [
-                (now - pd.Timedelta(hours=int(h))).isoformat()
-                for h in rng.integers(0, 720, size=limit)
-            ],
-            "duration_ms": rng.integers(100000, 600000, size=limit).tolist(),
-        }
-    )
-    return cast(list[dict[str, Any]], df.to_dict(orient="records"))
+    records = []
+    for i in range(limit):
+        artist, track, album = REAL_CATALOG[i % len(REAL_CATALOG)]
+        records.append(
+            {
+                "track_name": f"{track}",
+                "artist_name": f"{artist}",
+                "album_name": f"{album}",
+                "played_at": (now - pd.Timedelta(hours=int(rng.integers(0, 720)))).isoformat(),
+                "duration_ms": int(rng.integers(180000, 360000)),
+            }
+        )
+    return records

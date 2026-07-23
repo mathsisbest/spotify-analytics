@@ -1,6 +1,8 @@
 import plotly.graph_objects as go
+import plotly.io as pio
 import streamlit as st
 
+import dashboard.theme  # noqa: F401
 from dashboard.data import get_forecast, get_recommendations
 
 st.header("ML Insights")
@@ -13,6 +15,8 @@ if forecast:
     predicted = [r["predicted_minutes"] for r in forecast]
     lower = [r["lower_bound"] for r in forecast]
     upper = [r["upper_bound"] for r in forecast]
+
+    template_name = "spotify" if "spotify" in pio.templates else "plotly_dark"
 
     fig = go.Figure()
     fig.add_trace(
@@ -46,7 +50,7 @@ if forecast:
     )
     fig.update_layout(
         title="Daily Listening Minutes (14-Day Forecast)",
-        template="spotify",
+        template=template_name,
         height=500,
         yaxis_title="Minutes",
     )
