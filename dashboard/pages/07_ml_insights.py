@@ -11,35 +11,19 @@ from dashboard.data import (
 )
 
 st.header("ML Insights")
+st.caption("Machine learning predictions & recommendations for **Shylla**")
 
-user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
-st.caption(f"Machine learning predictions & recommendations for **{user_profile}**")
-
-st.subheader("Audio Feature Radar Comparison")
+st.subheader("Audio Feature Profile")
 categories, profiles = get_user_audio_profiles()
-
-if "Both" in user_profile:
-    radar_chart(
-        categories=categories,
-        profiles=profiles,
-        title="Dual Audio Feature Profile Comparison (Shylla Personal vs Work)",
-    )
-else:
-    active_profile_key = (
-        "Shylla (Personal) 🎵" if "Personal" in user_profile else "Shylla (Work) 🎧"
-    )
-    single_profile = {
-        active_profile_key: profiles.get(active_profile_key, profiles["Shylla (Personal) 🎵"])
-    }
-    radar_chart(
-        categories=categories,
-        profiles=single_profile,
-        title=f"Audio Feature Profile ({user_profile})",
-    )
+radar_chart(
+    categories=categories,
+    profiles=profiles,
+    title="Shylla's Audio Feature Profile",
+)
 
 st.subheader("Listening Forecast (14 days)")
 
-forecast = get_forecast(user_profile=user_profile)
+forecast = get_forecast()
 if forecast:
     dates = [r["forecast_date"] for r in forecast]
     predicted = [r["predicted_minutes"] for r in forecast]
@@ -79,7 +63,7 @@ if forecast:
         )
     )
     fig.update_layout(
-        title=f"Daily Listening Minutes (14-Day Forecast - {user_profile})",
+        title="Daily Listening Minutes (14-Day Forecast)",
         template=template_name,
         height=500,
         yaxis_title="Minutes",
@@ -89,7 +73,7 @@ else:
     st.info("No forecast data available.")
 
 st.subheader("Recommended Tracks")
-recs = get_recommendations(user_profile=user_profile)
+recs = get_recommendations()
 if recs:
     rows = [
         {

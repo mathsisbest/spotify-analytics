@@ -5,13 +5,11 @@ from dashboard.components import bar_chart, donut_chart
 from dashboard.data import get_top_artists
 
 st.header("Top Artists Analytics")
-
-user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
-st.caption(f"Top artist listening breakdown for **{user_profile}**")
+st.caption("Top artist listening breakdown for **Shylla**")
 
 limit = st.slider("Number of artists", min_value=5, max_value=25, value=10)
 
-artists = get_top_artists(limit=limit, user_profile=user_profile)
+artists = get_top_artists(limit=limit)
 if artists:
     col_bar, col_donut = st.columns([1.5, 1])
 
@@ -20,7 +18,7 @@ if artists:
             artists,
             x="artist_name",
             y="listen_count",
-            title=f"Top Artists by Listen Count ({user_profile})",
+            title="Top Artists by Listen Count",
         )
 
     with col_donut:

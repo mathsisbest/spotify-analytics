@@ -1,30 +1,19 @@
 import pandas as pd
 import streamlit as st
 
-from dashboard.components import gauge_chart, radar_chart, scatter_chart
-from dashboard.data import get_mood_map, get_taste_compatibility, get_user_audio_profiles
+from dashboard.components import radar_chart, scatter_chart
+from dashboard.data import get_mood_map, get_user_audio_profiles
 
 st.header("Audio Feature & Mood Analytics")
+st.caption("Showing mood clusters & feature profile for **Shylla**")
 
-user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
-st.caption(f"Showing mood clusters & feature profiles for **{user_profile}**")
-
-col_radar, col_gauge = st.columns([1.6, 1])
-
-with col_radar:
-    categories, profiles = get_user_audio_profiles()
-    radar_chart(categories, profiles, title="🎧 Shylla's Audio Feature Fingerprint")
-
-with col_gauge:
-    compat = get_taste_compatibility()
-    gauge_chart(compat["compatibility_score"], title="Personal vs Work Profile Alignment")
-    st.markdown(f"**Shared Top Artists:** {', '.join(compat['shared_top_artists'])}")
-    st.markdown(f"**Genre Overlap:** {', '.join(compat['genre_overlap'])}")
+categories, profiles = get_user_audio_profiles()
+radar_chart(categories, profiles, title="🎧 Shylla's Audio Feature Fingerprint")
 
 st.divider()
 st.subheader("Interactive Mood Space (Energy × Danceability)")
 
-mood = get_mood_map(user_profile=user_profile)
+mood = get_mood_map()
 
 if mood:
     df = pd.DataFrame(mood)
