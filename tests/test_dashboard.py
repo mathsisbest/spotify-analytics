@@ -7,7 +7,6 @@ import pytest
 
 from dashboard.data import (
     get_daily_summary,
-    get_dual_top_tracks,
     get_forecast,
     get_genre_trends,
     get_listening_heatmap,
@@ -15,7 +14,6 @@ from dashboard.data import (
     get_raw_history,
     get_recent_tracks,
     get_recommendations,
-    get_taste_compatibility,
     get_top_artists,
     get_top_tracks,
     get_user_audio_profiles,
@@ -465,26 +463,7 @@ class TestGetRawHistory:
 
 
 class TestUserProfileSupport:
-    def test_user_profile_returns_different_seeds(self) -> None:
-        personal_res = get_recent_tracks(limit=10, user_profile="Shylla (Personal) 🎵")
-        work_res = get_recent_tracks(limit=10, user_profile="Shylla (Work) 🎧")
-        assert personal_res[0]["track_id"] != work_res[0]["track_id"]
-
-    def test_dual_top_tracks(self) -> None:
-        result = get_dual_top_tracks(limit=5)
-        assert isinstance(result, list)
-        assert len(result) == 10
-        users = {r["user"] for r in result}
-        assert users == {"Shylla (Personal) 🎵", "Shylla (Work) 🎧"}
-
     def test_user_audio_profiles(self) -> None:
         categories, profiles = get_user_audio_profiles()
         assert len(categories) == 6
-        assert "Shylla (Personal) 🎵" in profiles
-        assert "Shylla (Work) 🎧" in profiles
-
-    def test_taste_compatibility(self) -> None:
-        compat = get_taste_compatibility()
-        assert "compatibility_score" in compat
-        assert isinstance(compat["compatibility_score"], float)
-        assert len(compat["shared_top_artists"]) > 0
+        assert "Shylla 🎵" in profiles

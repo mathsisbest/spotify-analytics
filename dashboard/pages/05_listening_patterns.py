@@ -1,25 +1,21 @@
-from typing import Any
-
 import streamlit as st
 
 from dashboard.components import heatmap_chart
 from dashboard.data import get_listening_heatmap
 
 st.header("Listening Patterns")
+st.caption("Listening activity breakdown for **Shylla**")
 
-user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
-st.caption(f"Listening activity breakdown for **{user_profile}**")
+data = get_listening_heatmap()
 
-days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-hours = [f"{h:02d}:00" for h in range(24)]
-
-
-def _render_single_heatmap(data: list[dict[str, Any]], title: str) -> None:
+if data:
+    days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    hours = [f"{h:02d}:00" for h in range(24)]
     z: list[list[float]] = [[0.0] * 24 for _ in range(7)]
     for row in data:
         z[row["day_of_week"]][row["hour_of_day"]] = row["minutes"]
 
-    heatmap_chart(z, x=hours, y=days, title=title)
+    heatmap_chart(z, x=hours, y=days, title="Listening Activity (Day × Hour)")
 
     by_hour: dict[int, list[float]] = {}
     for row in data:
@@ -32,21 +28,5 @@ def _render_single_heatmap(data: list[dict[str, Any]], title: str) -> None:
         st.metric("Peak Listening Hour", f"{peak_hour:02d}:00")
     with col2:
         st.metric("Quietest Hour", f"{quiet_hour:02d}:00")
-
-
-if "Both" in user_profile:
-    st.subheader("Shylla (Personal) Activity Heatmap")
-    p_data = get_listening_heatmap(user_profile="Shylla (Personal) 🎵")
-    if p_data:
-        _render_single_heatmap(p_data, title="Shylla (Personal) Listening Activity (Day × Hour)")
-
-    st.subheader("Shylla (Work) Activity Heatmap")
-    w_data = get_listening_heatmap(user_profile="Shylla (Work) 🎧")
-    if w_data:
-        _render_single_heatmap(w_data, title="Shylla (Work) Listening Activity (Day × Hour)")
 else:
-    data = get_listening_heatmap(user_profile=user_profile)
-    if data:
-        _render_single_heatmap(data, title=f"Listening Activity ({user_profile}) (Day × Hour)")
-    else:
-        st.info("No listening pattern data available.")
+    st.info("No listening pattern data available.")

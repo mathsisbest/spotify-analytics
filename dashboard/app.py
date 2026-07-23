@@ -23,24 +23,11 @@ custom_css = """
         color: #B3B3B3 !important;
         font-weight: 500 !important;
     }
-    .stSelectbox label {
-        color: #FFFFFF !important;
-    }
     </style>
 """
 st.markdown(custom_css, unsafe_allow_html=True)
 
 st.sidebar.title("🎵 Shylla's Spotify Analytics")
-st.sidebar.markdown("Cloud-Native Listening Insights for Shylla")
+st.sidebar.markdown("Cloud-Native Listening Insights for Shylla 🎵")
 st.sidebar.divider()
-
-user_profile = st.sidebar.selectbox(
-    "Active Listener Profile",
-    options=["Shylla (Personal) 🎵", "Shylla (Work) 🎧", "Both Profiles (Dual Comparison) 💖"],
-    index=0,
-    help="Select which listening profile data for Shylla to render across pages.",
-)
-st.session_state["user_profile"] = user_profile
-
-st.sidebar.markdown("---")
 st.sidebar.caption("Built with Streamlit · Powered by BigQuery & dbt")
