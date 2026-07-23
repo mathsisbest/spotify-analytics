@@ -6,25 +6,25 @@ from dashboard.data import get_mood_map, get_taste_compatibility, get_user_audio
 
 st.header("Audio Feature & Mood Analytics")
 
-user_profile = st.session_state.get("user_profile", "Daniel 🎧")
+user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
 st.caption(f"Showing mood clusters & feature profiles for **{user_profile}**")
 
 col_radar, col_gauge = st.columns([1.6, 1])
 
 with col_radar:
     categories, profiles = get_user_audio_profiles()
-    radar_chart(categories, profiles, title="🎧 Listener Audio Feature Fingerprint")
+    radar_chart(categories, profiles, title="🎧 Shylla's Audio Feature Fingerprint")
 
 with col_gauge:
     compat = get_taste_compatibility()
-    gauge_chart(compat["compatibility_score"], title="Dual Taste Compatibility Match")
+    gauge_chart(compat["compatibility_score"], title="Personal vs Work Profile Alignment")
     st.markdown(f"**Shared Top Artists:** {', '.join(compat['shared_top_artists'])}")
     st.markdown(f"**Genre Overlap:** {', '.join(compat['genre_overlap'])}")
 
 st.divider()
 st.subheader("Interactive Mood Space (Energy × Danceability)")
 
-mood = get_mood_map()
+mood = get_mood_map(user_profile=user_profile)
 
 if mood:
     df = pd.DataFrame(mood)

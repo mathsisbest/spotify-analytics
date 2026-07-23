@@ -466,22 +466,22 @@ class TestGetRawHistory:
 
 class TestUserProfileSupport:
     def test_user_profile_returns_different_seeds(self) -> None:
-        daniel_res = get_recent_tracks(limit=10, user_profile="Daniel 🎧")
-        wife_res = get_recent_tracks(limit=10, user_profile="Wife 🎵")
-        assert daniel_res[0]["track_id"] != wife_res[0]["track_id"]
+        personal_res = get_recent_tracks(limit=10, user_profile="Shylla (Personal) 🎵")
+        work_res = get_recent_tracks(limit=10, user_profile="Shylla (Work) 🎧")
+        assert personal_res[0]["track_id"] != work_res[0]["track_id"]
 
     def test_dual_top_tracks(self) -> None:
         result = get_dual_top_tracks(limit=5)
         assert isinstance(result, list)
         assert len(result) == 10
         users = {r["user"] for r in result}
-        assert users == {"Daniel 🎧", "Wife 🎵"}
+        assert users == {"Shylla (Personal) 🎵", "Shylla (Work) 🎧"}
 
     def test_user_audio_profiles(self) -> None:
         categories, profiles = get_user_audio_profiles()
         assert len(categories) == 6
-        assert "Daniel 🎧" in profiles
-        assert "Wife 🎵" in profiles
+        assert "Shylla (Personal) 🎵" in profiles
+        assert "Shylla (Work) 🎧" in profiles
 
     def test_taste_compatibility(self) -> None:
         compat = get_taste_compatibility()

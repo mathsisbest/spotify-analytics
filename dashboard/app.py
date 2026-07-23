@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Spotify Listening Analytics",
+    page_title="Shylla's Spotify Analytics",
     page_icon="🎵",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -30,15 +30,15 @@ custom_css = """
 """
 st.markdown(custom_css, unsafe_allow_html=True)
 
-st.sidebar.title("🎵 Spotify Analytics")
-st.sidebar.markdown("Cloud-Native Listening Insights")
+st.sidebar.title("🎵 Shylla's Spotify Analytics")
+st.sidebar.markdown("Cloud-Native Listening Insights for Shylla")
 st.sidebar.divider()
 
 user_profile = st.sidebar.selectbox(
     "Active Listener Profile",
-    options=["Daniel 🎧", "Wife 🎵", "Both (Dual Comparison) 💖"],
+    options=["Shylla (Personal) 🎵", "Shylla (Work) 🎧", "Both Profiles (Dual Comparison) 💖"],
     index=0,
-    help="Select which listening profile data to render across pages.",
+    help="Select which listening profile data for Shylla to render across pages.",
 )
 st.session_state["user_profile"] = user_profile
 

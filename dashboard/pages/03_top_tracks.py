@@ -6,7 +6,7 @@ from dashboard.data import get_dual_top_tracks, get_top_tracks
 
 st.header("Top Tracks")
 
-user_profile = st.session_state.get("user_profile", "Daniel 🎧")
+user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
 st.caption(f"Top track breakdown for **{user_profile}**")
 
 limit = st.slider("Number of tracks", min_value=5, max_value=25, value=10)
@@ -19,7 +19,7 @@ if "Both" in user_profile:
             x="track_name",
             y="listen_count",
             color="user",
-            title="Top Tracks Comparison (Daniel vs. Wife)",
+            title="Top Tracks Comparison (Shylla Personal vs. Work)",
         )
 
         df = pd.DataFrame(dual_tracks)

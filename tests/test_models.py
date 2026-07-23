@@ -2,7 +2,6 @@ from datetime import datetime
 
 import pytest
 from pydantic import ValidationError
-
 from spotify_analytics.models import (
     Artist,
     IngestionRun,
@@ -34,7 +33,7 @@ class TestArtistModel:
 
     def test_missing_id_raises(self) -> None:
         with pytest.raises(ValidationError):
-            Artist(name="No ID")  # type: ignore[call-arg]
+            Artist(name="No ID")
 
     def test_empty_genres_allowed(self) -> None:
         a = Artist(id="x", name="X", genres=[])
@@ -102,7 +101,7 @@ class TestTrackFeaturesModel:
 
     def test_missing_track_id_raises(self) -> None:
         with pytest.raises(ValidationError):
-            TrackFeatures()  # type: ignore[call-arg]
+            TrackFeatures()
 
     def test_fetched_at_default_is_datetime(self) -> None:
         f = TrackFeatures(track_id="t1")
@@ -131,7 +130,7 @@ class TestStreamingHistoryItemModel:
 
     def test_missing_played_at_raises(self) -> None:
         with pytest.raises(ValidationError):
-            StreamingHistoryItem(track_id="t1")  # type: ignore[call-arg]
+            StreamingHistoryItem(track_id="t1")
 
 
 class TestIngestionRunModel:

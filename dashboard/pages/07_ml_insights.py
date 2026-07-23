@@ -12,7 +12,7 @@ from dashboard.data import (
 
 st.header("ML Insights")
 
-user_profile = st.session_state.get("user_profile", "Daniel 🎧")
+user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
 st.caption(f"Machine learning predictions & recommendations for **{user_profile}**")
 
 st.subheader("Audio Feature Radar Comparison")
@@ -22,11 +22,15 @@ if "Both" in user_profile:
     radar_chart(
         categories=categories,
         profiles=profiles,
-        title="Dual Audio Feature Profile Comparison (Daniel vs. Wife)",
+        title="Dual Audio Feature Profile Comparison (Shylla Personal vs Work)",
     )
 else:
-    active_profile_key = "Daniel 🎧" if "Daniel" in user_profile else "Wife 🎵"
-    single_profile = {active_profile_key: profiles.get(active_profile_key, profiles["Daniel 🎧"])}
+    active_profile_key = (
+        "Shylla (Personal) 🎵" if "Personal" in user_profile else "Shylla (Work) 🎧"
+    )
+    single_profile = {
+        active_profile_key: profiles.get(active_profile_key, profiles["Shylla (Personal) 🎵"])
+    }
     radar_chart(
         categories=categories,
         profiles=single_profile,

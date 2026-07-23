@@ -6,17 +6,22 @@ from dashboard.data import get_top_artists
 
 st.header("Top Artists Analytics")
 
-user_profile = st.session_state.get("user_profile", "Daniel 🎧")
+user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
 st.caption(f"Top artist listening breakdown for **{user_profile}**")
 
 limit = st.slider("Number of artists", min_value=5, max_value=25, value=10)
 
-artists = get_top_artists(limit=limit)
+artists = get_top_artists(limit=limit, user_profile=user_profile)
 if artists:
     col_bar, col_donut = st.columns([1.5, 1])
 
     with col_bar:
-        bar_chart(artists, x="artist_name", y="listen_count", title="Top Artists by Listen Count")
+        bar_chart(
+            artists,
+            x="artist_name",
+            y="listen_count",
+            title=f"Top Artists by Listen Count ({user_profile})",
+        )
 
     with col_donut:
         labels = [a["artist_name"] for a in artists[:6]]
