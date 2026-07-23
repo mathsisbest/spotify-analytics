@@ -1,3 +1,5 @@
+from typing import Any
+
 import streamlit as st
 
 from dashboard.components import heatmap_chart
@@ -5,16 +7,19 @@ from dashboard.data import get_listening_heatmap
 
 st.header("Listening Patterns")
 
-data = get_listening_heatmap()
+user_profile = st.session_state.get("user_profile", "Daniel 🎧")
+st.caption(f"Listening activity breakdown for **{user_profile}**")
 
-if data:
-    days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    hours = [f"{h:02d}:00" for h in range(24)]
+days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+hours = [f"{h:02d}:00" for h in range(24)]
+
+
+def _render_single_heatmap(data: list[dict[str, Any]], title: str) -> None:
     z: list[list[float]] = [[0.0] * 24 for _ in range(7)]
     for row in data:
         z[row["day_of_week"]][row["hour_of_day"]] = row["minutes"]
 
-    heatmap_chart(z, x=hours, y=days, title="Listening Activity (Day × Hour)")
+    heatmap_chart(z, x=hours, y=days, title=title)
 
     by_hour: dict[int, list[float]] = {}
     for row in data:
@@ -27,5 +32,21 @@ if data:
         st.metric("Peak Listening Hour", f"{peak_hour:02d}:00")
     with col2:
         st.metric("Quietest Hour", f"{quiet_hour:02d}:00")
+
+
+if "Both" in user_profile:
+    st.subheader("Daniel's Activity Heatmap")
+    d_data = get_listening_heatmap(user_profile="Daniel 🎧")
+    if d_data:
+        _render_single_heatmap(d_data, title="Daniel's Listening Activity (Day × Hour)")
+
+    st.subheader("Wife's Activity Heatmap")
+    w_data = get_listening_heatmap(user_profile="Wife 🎵")
+    if w_data:
+        _render_single_heatmap(w_data, title="Wife's Listening Activity (Day × Hour)")
 else:
-    st.info("No listening pattern data available.")
+    data = get_listening_heatmap(user_profile=user_profile)
+    if data:
+        _render_single_heatmap(data, title=f"Listening Activity ({user_profile}) (Day × Hour)")
+    else:
+        st.info("No listening pattern data available.")
