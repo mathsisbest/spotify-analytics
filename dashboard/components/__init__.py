@@ -1,7 +1,11 @@
 from dashboard.components.charts import (
     area_chart,
     bar_chart,
+    donut_chart,
+    gauge_chart,
+    grouped_bar_chart,
     heatmap_chart,
+    radar_chart,
     scatter_chart,
     time_series_chart,
 )
@@ -10,8 +14,12 @@ from dashboard.components.kpi import kpi_card
 __all__ = [
     "area_chart",
     "bar_chart",
+    "donut_chart",
+    "gauge_chart",
+    "grouped_bar_chart",
     "heatmap_chart",
     "kpi_card",
+    "radar_chart",
     "scatter_chart",
     "time_series_chart",
 ]
