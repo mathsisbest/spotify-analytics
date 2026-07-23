@@ -7,8 +7,21 @@ import pandas as pd
 import streamlit as st
 
 
+def _get_seed_for_profile(user_profile: str | None = None) -> int:
+    if user_profile is None:
+        try:
+            user_profile = st.session_state.get("user_profile", "Daniel 🎧")
+        except Exception:
+            user_profile = "Daniel 🎧"
+    if "Wife" in str(user_profile):
+        return 99
+    elif "Both" in str(user_profile):
+        return 77
+    return 42
+
+
 @st.cache_data(ttl=120)
-def get_recent_tracks(limit: int = 20) -> list[dict[str, Any]]:
+def get_recent_tracks(limit: int = 20, user_profile: str | None = None) -> list[dict[str, Any]]:
     try:
         conn = st.connection("bigquery", type="bigquery")
         query = """
@@ -17,13 +30,18 @@ def get_recent_tracks(limit: int = 20) -> list[dict[str, Any]]:
             ORDER BY played_at DESC
             LIMIT @limit
         """
-        return cast(list[dict[str, Any]], conn.query(query, params={"limit": limit}).to_dicts())
+        return cast(
+            list[dict[str, Any]],
+            conn.query(query, params={"limit": limit}).to_dicts(),
+        )
     except Exception:
-        return _synth_recent_tracks(limit)
+        return _synth_recent_tracks(limit, seed=_get_seed_for_profile(user_profile))
 
 
 @st.cache_data(ttl=600)
-def get_daily_summary(start_date: str, end_date: str) -> list[dict[str, Any]]:
+def get_daily_summary(
+    start_date: str, end_date: str, user_profile: str | None = None
+) -> list[dict[str, Any]]:
     try:
         conn = st.connection("bigquery", type="bigquery")
         query = """
@@ -37,11 +55,11 @@ def get_daily_summary(start_date: str, end_date: str) -> list[dict[str, Any]]:
             conn.query(query, params={"start": start_date, "end": end_date}).to_dicts(),
         )
     except Exception:
-        return _synth_daily_summary(start_date, end_date)
+        return _synth_daily_summary(start_date, end_date, seed=_get_seed_for_profile(user_profile))
 
 
 @st.cache_data(ttl=600)
-def get_top_artists(limit: int = 10) -> list[dict[str, Any]]:
+def get_top_artists(limit: int = 10, user_profile: str | None = None) -> list[dict[str, Any]]:
     try:
         conn = st.connection("bigquery", type="bigquery")
         query = """
@@ -52,13 +70,16 @@ def get_top_artists(limit: int = 10) -> list[dict[str, Any]]:
             ORDER BY listen_count DESC
             LIMIT @limit
         """
-        return cast(list[dict[str, Any]], conn.query(query, params={"limit": limit}).to_dicts())
+        return cast(
+            list[dict[str, Any]],
+            conn.query(query, params={"limit": limit}).to_dicts(),
+        )
     except Exception:
-        return _synth_top_artists(limit)
+        return _synth_top_artists(limit, seed=_get_seed_for_profile(user_profile))
 
 
 @st.cache_data(ttl=600)
-def get_top_tracks(limit: int = 10) -> list[dict[str, Any]]:
+def get_top_tracks(limit: int = 10, user_profile: str | None = None) -> list[dict[str, Any]]:
     try:
         conn = st.connection("bigquery", type="bigquery")
         query = """
@@ -68,13 +89,18 @@ def get_top_tracks(limit: int = 10) -> list[dict[str, Any]]:
             ORDER BY listen_count DESC
             LIMIT @limit
         """
-        return cast(list[dict[str, Any]], conn.query(query, params={"limit": limit}).to_dicts())
+        return cast(
+            list[dict[str, Any]],
+            conn.query(query, params={"limit": limit}).to_dicts(),
+        )
     except Exception:
-        return _synth_top_tracks(limit)
+        return _synth_top_tracks(limit, seed=_get_seed_for_profile(user_profile))
 
 
 @st.cache_data(ttl=600)
-def get_genre_trends(start_date: str, end_date: str) -> list[dict[str, Any]]:
+def get_genre_trends(
+    start_date: str, end_date: str, user_profile: str | None = None
+) -> list[dict[str, Any]]:
     try:
         conn = st.connection("bigquery", type="bigquery")
         query = """
@@ -88,11 +114,13 @@ def get_genre_trends(start_date: str, end_date: str) -> list[dict[str, Any]]:
             conn.query(query, params={"start": start_date, "end": end_date}).to_dicts(),
         )
     except Exception:
-        return _synth_genre_trends(start_date, end_date)
+        return _synth_genre_trends(start_date, end_date, seed=_get_seed_for_profile(user_profile))
 
 
 @st.cache_data(ttl=600)
-def get_listening_heatmap() -> list[dict[str, Any]]:
+def get_listening_heatmap(
+    user_profile: str | None = None,
+) -> list[dict[str, Any]]:
     try:
         conn = st.connection("bigquery", type="bigquery")
         query = """
@@ -105,21 +133,21 @@ def get_listening_heatmap() -> list[dict[str, Any]]:
         """
         return cast(list[dict[str, Any]], conn.query(query).to_dicts())
     except Exception:
-        return _synth_listening_heatmap()
+        return _synth_listening_heatmap(seed=_get_seed_for_profile(user_profile))
 
 
 @st.cache_data(ttl=600)
-def get_mood_map() -> list[dict[str, Any]]:
+def get_mood_map(user_profile: str | None = None) -> list[dict[str, Any]]:
     try:
         conn = st.connection("bigquery", type="bigquery")
         query = "SELECT * FROM marts.ml_cluster_assignments"
         return cast(list[dict[str, Any]], conn.query(query).to_dicts())
     except Exception:
-        return _synth_mood_map()
+        return _synth_mood_map(seed=_get_seed_for_profile(user_profile))
 
 
 @st.cache_data(ttl=600)
-def get_forecast() -> list[dict[str, Any]]:
+def get_forecast(user_profile: str | None = None) -> list[dict[str, Any]]:
     try:
         conn = st.connection("bigquery", type="bigquery")
         query = """
@@ -129,11 +157,13 @@ def get_forecast() -> list[dict[str, Any]]:
         """
         return cast(list[dict[str, Any]], conn.query(query).to_dicts())
     except Exception:
-        return _synth_forecast()
+        return _synth_forecast(seed=_get_seed_for_profile(user_profile))
 
 
 @st.cache_data(ttl=600)
-def get_recommendations() -> list[dict[str, Any]]:
+def get_recommendations(
+    user_profile: str | None = None,
+) -> list[dict[str, Any]]:
     try:
         conn = st.connection("bigquery", type="bigquery")
         query = """
@@ -143,11 +173,11 @@ def get_recommendations() -> list[dict[str, Any]]:
         """
         return cast(list[dict[str, Any]], conn.query(query).to_dicts())
     except Exception:
-        return _synth_recommendations()
+        return _synth_recommendations(seed=_get_seed_for_profile(user_profile))
 
 
 @st.cache_data(ttl=120)
-def get_raw_history(limit: int = 100) -> list[dict[str, Any]]:
+def get_raw_history(limit: int = 100, user_profile: str | None = None) -> list[dict[str, Any]]:
     try:
         conn = st.connection("bigquery", type="bigquery")
         query = """
@@ -156,9 +186,38 @@ def get_raw_history(limit: int = 100) -> list[dict[str, Any]]:
             ORDER BY played_at DESC
             LIMIT @limit
         """
-        return cast(list[dict[str, Any]], conn.query(query, params={"limit": limit}).to_dicts())
+        return cast(
+            list[dict[str, Any]],
+            conn.query(query, params={"limit": limit}).to_dicts(),
+        )
     except Exception:
-        return _synth_raw_history(limit)
+        return _synth_raw_history(limit, seed=_get_seed_for_profile(user_profile))
+
+
+@st.cache_data(ttl=600)
+def get_dual_top_tracks(limit: int = 5) -> list[dict[str, Any]]:
+    daniel_tracks = get_top_tracks(limit=limit, user_profile="Daniel 🎧")
+    wife_tracks = get_top_tracks(limit=limit, user_profile="Wife 🎵")
+    rows: list[dict[str, Any]] = []
+    for t in daniel_tracks:
+        rows.append(
+            {
+                "track_name": t["track_name"],
+                "artist_name": t["artist_name"],
+                "listen_count": t["listen_count"],
+                "user": "Daniel 🎧",
+            }
+        )
+    for t in wife_tracks:
+        rows.append(
+            {
+                "track_name": t["track_name"],
+                "artist_name": t["artist_name"],
+                "listen_count": t["listen_count"],
+                "user": "Wife 🎵",
+            }
+        )
+    return rows
 
 
 REAL_CATALOG = [
@@ -187,7 +246,14 @@ REAL_CATALOG = [
 
 @st.cache_data(ttl=600)
 def get_user_audio_profiles() -> tuple[list[str], dict[str, list[float]]]:
-    categories = ["Danceability", "Energy", "Valence", "Acousticness", "Speechiness", "Liveness"]
+    categories = [
+        "Danceability",
+        "Energy",
+        "Valence",
+        "Acousticness",
+        "Speechiness",
+        "Liveness",
+    ]
     profiles = {
         "Daniel 🎧": [0.72, 0.81, 0.65, 0.22, 0.08, 0.18],
         "Wife 🎵": [0.68, 0.58, 0.74, 0.45, 0.06, 0.12],
@@ -199,20 +265,25 @@ def get_user_audio_profiles() -> tuple[list[str], dict[str, list[float]]]:
 def get_taste_compatibility() -> dict[str, Any]:
     return {
         "compatibility_score": 87.5,
-        "shared_top_artists": ["Tame Impala", "Glass Animals", "Fleetwood Mac", "Gorillaz"],
+        "shared_top_artists": [
+            "Tame Impala",
+            "Glass Animals",
+            "Fleetwood Mac",
+            "Gorillaz",
+        ],
         "genre_overlap": ["Indie Pop", "Synthwave", "Alternative R&B"],
     }
 
 
-def _synth_recent_tracks(limit: int = 20) -> list[dict[str, Any]]:
-    rng = np.random.default_rng(42)
+def _synth_recent_tracks(limit: int = 20, seed: int = 42) -> list[dict[str, Any]]:
+    rng = np.random.default_rng(seed)
     now = pd.Timestamp.now()
     records = []
     for i in range(limit):
-        artist, track, album = REAL_CATALOG[i % len(REAL_CATALOG)]
+        artist, track, album = REAL_CATALOG[(i + seed) % len(REAL_CATALOG)]
         records.append(
             {
-                "track_id": f"track_{i:04d}",
+                "track_id": f"track_{seed}_{i:04d}",
                 "track_name": f"{track}",
                 "artist_name": f"{artist}",
                 "album_name": f"{album}",
@@ -223,8 +294,8 @@ def _synth_recent_tracks(limit: int = 20) -> list[dict[str, Any]]:
     return records
 
 
-def _synth_daily_summary(start_date: str, end_date: str) -> list[dict[str, Any]]:
-    rng = np.random.default_rng(42)
+def _synth_daily_summary(start_date: str, end_date: str, seed: int = 42) -> list[dict[str, Any]]:
+    rng = np.random.default_rng(seed)
     dates = pd.date_range(start=start_date, end=end_date, freq="D")
     if len(dates) == 0:
         return []
@@ -239,10 +310,14 @@ def _synth_daily_summary(start_date: str, end_date: str) -> list[dict[str, Any]]
     return cast(list[dict[str, Any]], df.to_dict(orient="records"))
 
 
-def _synth_top_artists(limit: int = 10) -> list[dict[str, Any]]:
-    rng = np.random.default_rng(42)
+def _synth_top_artists(limit: int = 10, seed: int = 42) -> list[dict[str, Any]]:
+    rng = np.random.default_rng(seed)
     listens = sorted(rng.integers(50, 500, size=limit), reverse=True)
-    artists = [item[0] for item in REAL_CATALOG[:limit]]
+    artists = [
+        item[0]
+        for item in REAL_CATALOG[(seed % len(REAL_CATALOG)) :]
+        + REAL_CATALOG[: (seed % len(REAL_CATALOG))]
+    ][:limit]
     return [
         {
             "artist_name": artists[i % len(artists)],
@@ -253,22 +328,32 @@ def _synth_top_artists(limit: int = 10) -> list[dict[str, Any]]:
     ]
 
 
-def _synth_top_tracks(limit: int = 10) -> list[dict[str, Any]]:
-    rng = np.random.default_rng(42)
+def _synth_top_tracks(limit: int = 10, seed: int = 42) -> list[dict[str, Any]]:
+    rng = np.random.default_rng(seed)
     listens = sorted(rng.integers(20, 200, size=limit), reverse=True)
+    catalog_offset = seed % len(REAL_CATALOG)
     return [
         {
-            "track_name": REAL_CATALOG[i % len(REAL_CATALOG)][1],
-            "artist_name": REAL_CATALOG[i % len(REAL_CATALOG)][0],
+            "track_name": REAL_CATALOG[(i + catalog_offset) % len(REAL_CATALOG)][1],
+            "artist_name": REAL_CATALOG[(i + catalog_offset) % len(REAL_CATALOG)][0],
             "listen_count": int(listens[i]),
         }
         for i in range(limit)
     ]
 
 
-def _synth_genre_trends(start_date: str, end_date: str) -> list[dict[str, Any]]:
-    rng = np.random.default_rng(42)
-    genres = ["pop", "rock", "hip-hop", "electronic", "jazz", "classical", "r&b", "country"]
+def _synth_genre_trends(start_date: str, end_date: str, seed: int = 42) -> list[dict[str, Any]]:
+    rng = np.random.default_rng(seed)
+    genres = [
+        "pop",
+        "rock",
+        "hip-hop",
+        "electronic",
+        "jazz",
+        "classical",
+        "r&b",
+        "country",
+    ]
     dates = pd.date_range(start=start_date, end=end_date, freq="D")
     if len(dates) == 0:
         return []
@@ -289,8 +374,8 @@ def _synth_genre_trends(start_date: str, end_date: str) -> list[dict[str, Any]]:
     return rows
 
 
-def _synth_listening_heatmap() -> list[dict[str, Any]]:
-    rng = np.random.default_rng(42)
+def _synth_listening_heatmap(seed: int = 42) -> list[dict[str, Any]]:
+    rng = np.random.default_rng(seed)
     rows: list[dict[str, Any]] = []
     for day in range(7):
         for hour in range(24):
@@ -313,14 +398,15 @@ def _synth_listening_heatmap() -> list[dict[str, Any]]:
     return rows
 
 
-def _synth_mood_map() -> list[dict[str, Any]]:
-    rng = np.random.default_rng(42)
+def _synth_mood_map(seed: int = 42) -> list[dict[str, Any]]:
+    rng = np.random.default_rng(seed)
     n = 100
+    offset = seed % len(REAL_CATALOG)
     df = pd.DataFrame(
         {
-            "track_id": [f"track_{i:04d}" for i in range(n)],
-            "track_name": [REAL_CATALOG[i % len(REAL_CATALOG)][1] for i in range(n)],
-            "artist_name": [REAL_CATALOG[i % len(REAL_CATALOG)][0] for i in range(n)],
+            "track_id": [f"track_{seed}_{i:04d}" for i in range(n)],
+            "track_name": [REAL_CATALOG[(i + offset) % len(REAL_CATALOG)][1] for i in range(n)],
+            "artist_name": [REAL_CATALOG[(i + offset) % len(REAL_CATALOG)][0] for i in range(n)],
             "danceability": rng.beta(2, 2, size=n),
             "energy": rng.beta(2, 2, size=n),
             "valence": rng.beta(2, 2, size=n),
@@ -331,8 +417,8 @@ def _synth_mood_map() -> list[dict[str, Any]]:
     return cast(list[dict[str, Any]], df.to_dict(orient="records"))
 
 
-def _synth_forecast() -> list[dict[str, Any]]:
-    rng = np.random.default_rng(42)
+def _synth_forecast(seed: int = 42) -> list[dict[str, Any]]:
+    rng = np.random.default_rng(seed)
     n = 14
     start = pd.Timestamp.today()
     dates = pd.date_range(start=start, periods=n, freq="D")
@@ -348,8 +434,8 @@ def _synth_forecast() -> list[dict[str, Any]]:
     return cast(list[dict[str, Any]], df.to_dict(orient="records"))
 
 
-def _synth_recommendations() -> list[dict[str, Any]]:
-    rng = np.random.default_rng(42)
+def _synth_recommendations(seed: int = 42) -> list[dict[str, Any]]:
+    rng = np.random.default_rng(seed)
     reasons = [
         "matches your recent listening pattern",
         "similar energy to your top tracks",
@@ -360,8 +446,8 @@ def _synth_recommendations() -> list[dict[str, Any]]:
     rec_catalog = REAL_CATALOG[10:] + REAL_CATALOG[:5]
     return [
         {
-            "track_name": rec_catalog[i % len(rec_catalog)][1],
-            "artist_name": rec_catalog[i % len(rec_catalog)][0],
+            "track_name": rec_catalog[(i + seed) % len(rec_catalog)][1],
+            "artist_name": rec_catalog[(i + seed) % len(rec_catalog)][0],
             "score": round(float(rng.uniform(0.75, 0.99)), 4),
             "reason": str(rng.choice(reasons)),
         }
@@ -369,12 +455,12 @@ def _synth_recommendations() -> list[dict[str, Any]]:
     ]
 
 
-def _synth_raw_history(limit: int = 100) -> list[dict[str, Any]]:
-    rng = np.random.default_rng(42)
+def _synth_raw_history(limit: int = 100, seed: int = 42) -> list[dict[str, Any]]:
+    rng = np.random.default_rng(seed)
     now = pd.Timestamp.now()
     records = []
     for i in range(limit):
-        artist, track, album = REAL_CATALOG[i % len(REAL_CATALOG)]
+        artist, track, album = REAL_CATALOG[(i + seed) % len(REAL_CATALOG)]
         records.append(
             {
                 "track_name": f"{track}",
