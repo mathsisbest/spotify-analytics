@@ -7,7 +7,7 @@ from dashboard.data import get_listening_heatmap
 
 st.header("Listening Patterns")
 
-user_profile = st.session_state.get("user_profile", "Daniel 🎧")
+user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
 st.caption(f"Listening activity breakdown for **{user_profile}**")
 
 days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -35,15 +35,15 @@ def _render_single_heatmap(data: list[dict[str, Any]], title: str) -> None:
 
 
 if "Both" in user_profile:
-    st.subheader("Daniel's Activity Heatmap")
-    d_data = get_listening_heatmap(user_profile="Daniel 🎧")
-    if d_data:
-        _render_single_heatmap(d_data, title="Daniel's Listening Activity (Day × Hour)")
+    st.subheader("Shylla (Personal) Activity Heatmap")
+    p_data = get_listening_heatmap(user_profile="Shylla (Personal) 🎵")
+    if p_data:
+        _render_single_heatmap(p_data, title="Shylla (Personal) Listening Activity (Day × Hour)")
 
-    st.subheader("Wife's Activity Heatmap")
-    w_data = get_listening_heatmap(user_profile="Wife 🎵")
+    st.subheader("Shylla (Work) Activity Heatmap")
+    w_data = get_listening_heatmap(user_profile="Shylla (Work) 🎧")
     if w_data:
-        _render_single_heatmap(w_data, title="Wife's Listening Activity (Day × Hour)")
+        _render_single_heatmap(w_data, title="Shylla (Work) Listening Activity (Day × Hour)")
 else:
     data = get_listening_heatmap(user_profile=user_profile)
     if data:

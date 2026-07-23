@@ -12,7 +12,7 @@ from dashboard.data import (
 
 st.header("Overview")
 
-user_profile = st.session_state.get("user_profile", "Daniel 🎧")
+user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
 st.caption(f"Active Listener Profile: **{user_profile}**")
 
 today = date.today()
@@ -21,52 +21,59 @@ start_date = st.date_input("Start date", value=default_start, key="overview_star
 end_date = st.date_input("End date", value=today, key="overview_end")
 
 if "Both" in user_profile:
-    st.subheader("Dual Taste Compatibility")
+    st.subheader("Shylla's Dual Listening Taste Profile")
     compat = get_taste_compatibility()
     gauge_col, info_col = st.columns([1, 1])
     with gauge_col:
         gauge_chart(
             value=compat["compatibility_score"],
-            title="Music Taste Compatibility",
+            title="Profile Alignment Score",
         )
     with info_col:
-        st.markdown("### Shared Favorites")
-        st.markdown("**Top Shared Artists:** " + ", ".join(compat["shared_top_artists"]))
+        st.markdown("### Top Shared Favorites Across Profiles")
+        st.markdown("**Shared Top Artists:** " + ", ".join(compat["shared_top_artists"]))
         st.markdown("**Overlapping Genres:** " + ", ".join(compat["genre_overlap"]))
-        st.info("High alignment on Indie Pop and Synthwave. Great match for shared playlists!")
+        st.info(
+            "High alignment on Indie Pop and Synthwave between "
+            "Personal and Work listening sessions."
+        )
 
-    st.subheader("Comparative Overview")
-    d_summary = get_daily_summary(
-        start_date.isoformat(), end_date.isoformat(), user_profile="Daniel 🎧"
+    st.subheader("Comparative Listening Volume")
+    p_summary = get_daily_summary(
+        start_date.isoformat(),
+        end_date.isoformat(),
+        user_profile="Shylla (Personal) 🎵",
     )
     w_summary = get_daily_summary(
-        start_date.isoformat(), end_date.isoformat(), user_profile="Wife 🎵"
+        start_date.isoformat(),
+        end_date.isoformat(),
+        user_profile="Shylla (Work) 🎧",
     )
 
-    d_min = sum(r["minutes_listened"] for r in d_summary) if d_summary else 0
+    p_min = sum(r["minutes_listened"] for r in p_summary) if p_summary else 0
     w_min = sum(r["minutes_listened"] for r in w_summary) if w_summary else 0
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        kpi_card("Daniel's Total Min", f"{d_min:.0f}")
+        kpi_card("Personal Listening Min", f"{p_min:.0f}")
     with col2:
-        kpi_card("Wife's Total Min", f"{w_min:.0f}")
+        kpi_card("Work Listening Min", f"{w_min:.0f}")
     with col3:
         kpi_card(
             "Total Combined Min",
-            f"{(d_min + w_min):.0f}",
+            f"{(p_min + w_min):.0f}",
         )
     with col4:
         kpi_card(
-            "Listening Lead",
-            "Daniel (+12%)" if d_min >= w_min else "Wife (+12%)",
+            "Primary Listening Focus",
+            "Personal (+12%)" if p_min >= w_min else "Work (+12%)",
         )
 
     time_series_chart(
-        d_summary,
+        p_summary,
         x="listening_date",
         y="minutes_listened",
-        title="Daniel's Daily Listening Minutes",
+        title="Shylla (Personal) Daily Listening Minutes",
     )
 else:
     summary = get_daily_summary(

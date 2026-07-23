@@ -7,7 +7,7 @@ from dashboard.data import get_genre_trends
 
 st.header("Genre Trends")
 
-user_profile = st.session_state.get("user_profile", "Daniel 🎧")
+user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
 st.caption(f"Genre breakdown for **{user_profile}**")
 
 today = date.today()
@@ -16,22 +16,26 @@ start_date = st.date_input("Start date", value=default_start, key="genre_start")
 end_date = st.date_input("End date", value=today, key="genre_end")
 
 if "Both" in user_profile:
-    st.subheader("Daniel's Genre Share Over Time")
-    d_trends = get_genre_trends(
-        start_date.isoformat(), end_date.isoformat(), user_profile="Daniel 🎧"
+    st.subheader("Shylla (Personal) Genre Share Over Time")
+    p_trends = get_genre_trends(
+        start_date.isoformat(),
+        end_date.isoformat(),
+        user_profile="Shylla (Personal) 🎵",
     )
-    if d_trends:
+    if p_trends:
         area_chart(
-            d_trends,
+            p_trends,
             x="listening_date",
             y="share",
             color="genre",
-            title="Daniel's Genre Share Over Time",
+            title="Shylla (Personal) Genre Share Over Time",
         )
 
-    st.subheader("Wife's Genre Share Over Time")
+    st.subheader("Shylla (Work) Genre Share Over Time")
     w_trends = get_genre_trends(
-        start_date.isoformat(), end_date.isoformat(), user_profile="Wife 🎵"
+        start_date.isoformat(),
+        end_date.isoformat(),
+        user_profile="Shylla (Work) 🎧",
     )
     if w_trends:
         area_chart(
@@ -39,7 +43,7 @@ if "Both" in user_profile:
             x="listening_date",
             y="share",
             color="genre",
-            title="Wife's Genre Share Over Time",
+            title="Shylla (Work) Genre Share Over Time",
         )
 else:
     trends = get_genre_trends(

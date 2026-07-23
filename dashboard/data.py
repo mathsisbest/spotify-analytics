@@ -10,10 +10,10 @@ import streamlit as st
 def _get_seed_for_profile(user_profile: str | None = None) -> int:
     if user_profile is None:
         try:
-            user_profile = st.session_state.get("user_profile", "Daniel 🎧")
+            user_profile = st.session_state.get("user_profile", "Shylla (Personal) 🎵")
         except Exception:
-            user_profile = "Daniel 🎧"
-    if "Wife" in str(user_profile):
+            user_profile = "Shylla (Personal) 🎵"
+    if "Work" in str(user_profile):
         return 99
     elif "Both" in str(user_profile):
         return 77
@@ -196,25 +196,25 @@ def get_raw_history(limit: int = 100, user_profile: str | None = None) -> list[d
 
 @st.cache_data(ttl=600)
 def get_dual_top_tracks(limit: int = 5) -> list[dict[str, Any]]:
-    daniel_tracks = get_top_tracks(limit=limit, user_profile="Daniel 🎧")
-    wife_tracks = get_top_tracks(limit=limit, user_profile="Wife 🎵")
+    personal_tracks = get_top_tracks(limit=limit, user_profile="Shylla (Personal) 🎵")
+    work_tracks = get_top_tracks(limit=limit, user_profile="Shylla (Work) 🎧")
     rows: list[dict[str, Any]] = []
-    for t in daniel_tracks:
+    for t in personal_tracks:
         rows.append(
             {
                 "track_name": t["track_name"],
                 "artist_name": t["artist_name"],
                 "listen_count": t["listen_count"],
-                "user": "Daniel 🎧",
+                "user": "Shylla (Personal) 🎵",
             }
         )
-    for t in wife_tracks:
+    for t in work_tracks:
         rows.append(
             {
                 "track_name": t["track_name"],
                 "artist_name": t["artist_name"],
                 "listen_count": t["listen_count"],
-                "user": "Wife 🎵",
+                "user": "Shylla (Work) 🎧",
             }
         )
     return rows
@@ -255,8 +255,8 @@ def get_user_audio_profiles() -> tuple[list[str], dict[str, list[float]]]:
         "Liveness",
     ]
     profiles = {
-        "Daniel 🎧": [0.72, 0.81, 0.65, 0.22, 0.08, 0.18],
-        "Wife 🎵": [0.68, 0.58, 0.74, 0.45, 0.06, 0.12],
+        "Shylla (Personal) 🎵": [0.72, 0.81, 0.65, 0.22, 0.08, 0.18],
+        "Shylla (Work) 🎧": [0.68, 0.58, 0.74, 0.45, 0.06, 0.12],
     }
     return categories, profiles
 
@@ -264,7 +264,7 @@ def get_user_audio_profiles() -> tuple[list[str], dict[str, list[float]]]:
 @st.cache_data(ttl=600)
 def get_taste_compatibility() -> dict[str, Any]:
     return {
-        "compatibility_score": 87.5,
+        "compatibility_score": 88.5,
         "shared_top_artists": [
             "Tame Impala",
             "Glass Animals",
