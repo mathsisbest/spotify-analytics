@@ -19,12 +19,12 @@ def get_recent_tracks(limit: int = 20, user_profile: str | None = None) -> list[
     client = get_bq_client()
     query = """
         SELECT
-            track_id,
-            track_name,
-            artist_name,
-            album_name,
+            COALESCE(track_id, 't_unknown') as track_id,
+            COALESCE(track_name, 'Unknown Track') as track_name,
+            COALESCE(artist_name, 'Unknown Artist') as artist_name,
+            COALESCE(album_name, 'Unknown Album') as album_name,
             played_at,
-            duration_ms
+            COALESCE(duration_ms, 180000) as duration_ms
         FROM `spotify-analytics-76dd657e.raw.streaming_history`
         ORDER BY played_at DESC
         LIMIT @limit
@@ -59,8 +59,20 @@ def get_daily_summary(
     df = client.query(query).to_dataframe()
     if df.empty:
         return []
-    df["date"] = df["date"].astype(str)
-    return cast(list[dict[str, Any]], df.to_dict(orient="records"))
+    records = []
+    for _, row in df.iterrows():
+        d_str = str(row["date"])
+        records.append(
+            {
+                "date": d_str,
+                "listening_date": d_str,
+                "track_count": int(row["track_count"]),
+                "minutes_listened": float(row["minutes_listened"]),
+                "unique_artists": int(row["unique_artists"]),
+                "artist_count": int(row["unique_artists"]),
+            }
+        )
+    return records
 
 
 @st.cache_data(ttl=120)
@@ -149,8 +161,23 @@ def get_genre_trends(
     df = client.query(query).to_dataframe()
     if df.empty:
         return []
-    df["date"] = df["date"].astype(str)
-    return cast(list[dict[str, Any]], df.to_dict(orient="records"))
+
+    total_per_date = df.groupby("date")["listen_count"].transform("sum")
+    df["share"] = df["listen_count"] / total_per_date
+
+    records = []
+    for _, row in df.iterrows():
+        d_str = str(row["date"])
+        records.append(
+            {
+                "date": d_str,
+                "listening_date": d_str,
+                "genre": str(row["genre"]),
+                "listen_count": int(row["listen_count"]),
+                "share": float(row["share"]),
+            }
+        )
+    return records
 
 
 @st.cache_data(ttl=120)
@@ -160,7 +187,8 @@ def get_listening_heatmap(user_profile: str | None = None) -> list[dict[str, Any
         SELECT
             EXTRACT(DAYOFWEEK FROM played_at) as day_of_week,
             EXTRACT(HOUR FROM played_at) as hour_of_day,
-            COUNT(*) as listen_count
+            COUNT(*) as listen_count,
+            SUM(duration_ms) / 60000.0 as minutes
         FROM `spotify-analytics-76dd657e.raw.streaming_history`
         GROUP BY 1, 2
     """
@@ -168,11 +196,25 @@ def get_listening_heatmap(user_profile: str | None = None) -> list[dict[str, Any
     if df.empty:
         return []
     days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    df["day_name"] = df["day_of_week"].apply(
-        lambda d: days[int(d) - 1] if 1 <= int(d) <= 7 else "Mon"
-    )
-    df = df.rename(columns={"hour_of_day": "hour", "day_name": "day"})
-    return cast(list[dict[str, Any]], df[["day", "hour", "listen_count"]].to_dict(orient="records"))
+    records = []
+    for _, row in df.iterrows():
+        dow = int(row["day_of_week"]) - 1  # 0-indexed (0=Sun, 6=Sat)
+        if not (0 <= dow <= 6):
+            dow = 0
+        hod = int(row["hour_of_day"])
+        mins = float(row["minutes"] or 0.0)
+        cnt = int(row["listen_count"])
+        records.append(
+            {
+                "day_of_week": dow,
+                "hour_of_day": hod,
+                "minutes": mins,
+                "listen_count": cnt,
+                "day": days[dow],
+                "hour": hod,
+            }
+        )
+    return records
 
 
 @st.cache_data(ttl=120)
@@ -180,18 +222,41 @@ def get_mood_map(user_profile: str | None = None) -> list[dict[str, Any]]:
     client = get_bq_client()
     query = """
         SELECT
+            h.track_id,
             h.track_name,
             h.artist_name,
             COALESCE(f.valence, 0.6) as valence,
             COALESCE(f.energy, 0.7) as energy,
-            COALESCE(f.danceability, 0.65) as danceability
+            COALESCE(f.danceability, 0.65) as danceability,
+            COALESCE(f.tempo, 120.0) as tempo,
+            COALESCE(c.cluster_id, 0) as cluster_id
         FROM `spotify-analytics-76dd657e.raw.streaming_history` h
         LEFT JOIN `spotify-analytics-76dd657e.raw.track_features` f
         ON h.track_id = f.track_id
+        LEFT JOIN `spotify-analytics-76dd657e.marts.ml_cluster_assignments` c
+        ON h.track_id = c.track_id
         WHERE h.track_name IS NOT NULL
         LIMIT 100
     """
-    df = client.query(query).to_dataframe()
+    try:
+        df = client.query(query).to_dataframe()
+    except Exception:
+        # Fallback to query raw streaming history without marts join
+        query_fallback = """
+            SELECT
+                h.track_id,
+                h.track_name,
+                h.artist_name,
+                0.6 as valence,
+                0.7 as energy,
+                0.65 as danceability,
+                120.0 as tempo,
+                0 as cluster_id
+            FROM `spotify-analytics-76dd657e.raw.streaming_history` h
+            WHERE h.track_name IS NOT NULL
+            LIMIT 100
+        """
+        df = client.query(query_fallback).to_dataframe()
     return cast(list[dict[str, Any]], df.to_dict(orient="records"))
 
 
@@ -242,6 +307,7 @@ def get_forecast(user_profile: str | None = None) -> list[dict[str, Any]]:
     client = get_bq_client()
     query = """
         SELECT
+            CAST(forecast_date AS STRING) as forecast_date,
             CAST(forecast_date AS STRING) as date,
             predicted_minutes as predicted_minutes,
             lower_bound as lower_bound,
@@ -256,7 +322,7 @@ def get_forecast(user_profile: str | None = None) -> list[dict[str, Any]]:
     except Exception:
         pass
 
-    # Fallback to dynamic trend based on real streaming history
+    # Dynamic trend based on real streaming history
     daily = get_daily_summary()
     if not daily:
         return []
@@ -270,6 +336,7 @@ def get_forecast(user_profile: str | None = None) -> list[dict[str, Any]]:
         results.append(
             {
                 "date": d_str,
+                "forecast_date": d_str,
                 "predicted_minutes": round(avg_min * (1.0 + (i % 3 - 1) * 0.05), 1),
                 "lower_bound": round(avg_min * 0.8, 1),
                 "upper_bound": round(avg_min * 1.2, 1),

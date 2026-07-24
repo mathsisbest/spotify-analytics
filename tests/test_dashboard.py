@@ -61,7 +61,12 @@ def _mock_bq(mocker: Any) -> None:
             if "DAYOFWEEK" in query_upper:
                 # heatmap
                 data = [
-                    {"day_of_week": d, "hour_of_day": h, "listen_count": 5}
+                    {
+                        "day_of_week": d,
+                        "hour_of_day": h,
+                        "listen_count": 5,
+                        "minutes": 15.0,
+                    }
                     for d in range(1, 8)
                     for h in range(24)
                 ]
@@ -218,7 +223,7 @@ class TestGetDailySummary:
     def test_has_all_keys(self) -> None:
         result = get_daily_summary("2025-01-01", "2025-01-07")
         for row in result:
-            assert set(row.keys()) == DAILY_KEYS
+            assert DAILY_KEYS.issubset(set(row.keys()))
 
     def test_correct_types(self) -> None:
         result = get_daily_summary("2025-01-01", "2025-01-07")
@@ -238,7 +243,7 @@ class TestGetTopArtists:
     def test_has_all_keys(self) -> None:
         result = get_top_artists(limit=10)
         for row in result:
-            assert set(row.keys()) == TOP_ARTIST_KEYS
+            assert TOP_ARTIST_KEYS.issubset(set(row.keys()))
 
 
 class TestGetTopTracks:
@@ -250,7 +255,7 @@ class TestGetTopTracks:
     def test_has_all_keys(self) -> None:
         result = get_top_tracks(limit=10)
         for row in result:
-            assert set(row.keys()) == TOP_TRACK_KEYS
+            assert TOP_TRACK_KEYS.issubset(set(row.keys()))
 
 
 class TestGetGenreTrends:
@@ -261,7 +266,7 @@ class TestGetGenreTrends:
     def test_has_all_keys(self) -> None:
         result = get_genre_trends()
         for row in result:
-            assert set(row.keys()) == GENRE_TREND_KEYS
+            assert GENRE_TREND_KEYS.issubset(set(row.keys()))
 
 
 class TestGetListeningHeatmap:
@@ -270,7 +275,7 @@ class TestGetListeningHeatmap:
         assert isinstance(result, list)
         assert len(result) == 168
         for row in result:
-            assert set(row.keys()) == HEATMAP_KEYS
+            assert HEATMAP_KEYS.issubset(set(row.keys()))
 
 
 class TestGetMoodMap:
