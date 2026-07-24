@@ -32,6 +32,7 @@ dev = [
     "pre-commit>=3.7",
     "dbt-core>=1.8",
     "dbt-duckdb>=1.8",
+    "dbt-bigquery>=1.8",
     "streamlit>=1.28",
     "plotly>=5.18",
 ]

@@ -9,3 +9,6 @@ __pycache__
 .terraform*
 *.tfstate*
 terraform.tfvars
+logs/
+transform/logs/
+transform/target/
