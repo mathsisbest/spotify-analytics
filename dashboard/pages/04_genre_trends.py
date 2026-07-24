@@ -7,7 +7,7 @@ from dashboard.components import area_chart, kpi_card
 from dashboard.data import get_genre_trends
 
 st.title("🎸 Genre & Artist Evolution")
-st.caption("Tracking how Shylla's music preferences evolve over time")
+st.caption("Tracking how your music preferences evolve over time")
 
 today = date.today()
 default_start = today - timedelta(days=90)

@@ -7,7 +7,7 @@ from dashboard.components import kpi_card
 from dashboard.data import get_forecast, get_recommendations
 
 st.title("🤖 Predictive AI & Smart Insights")
-st.caption("Time-series volume forecasting & algorithmic track recommendations for **Shylla**")
+st.caption("Time-series volume forecasting & algorithmic track recommendations")
 
 forecast = get_forecast()
 
