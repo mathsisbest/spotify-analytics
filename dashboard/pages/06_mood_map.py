@@ -7,7 +7,9 @@ from dashboard.data import get_mood_map, get_user_audio_profiles
 st.header("Audio Feature & Mood Analytics")
 st.caption("Showing mood clusters & feature profile for **Shylla**")
 
-categories, profiles = get_user_audio_profiles()
+raw_profiles = get_user_audio_profiles()
+categories = ["valence", "energy", "danceability", "acousticness", "liveness"]
+profiles = {name: [p[c] for c in categories] for name, p in raw_profiles.items()}
 radar_chart(categories, profiles, title="🎧 Shylla's Audio Feature Fingerprint")
 
 st.divider()
@@ -17,23 +19,17 @@ mood = get_mood_map()
 
 if mood:
     df = pd.DataFrame(mood)
-    df["cluster"] = df["cluster_id"].astype(str)
-
+    if "cluster_id" in df.columns:
+        df["cluster"] = df["cluster_id"].astype(str)
+    else:
+        df["cluster"] = "0"
     scatter_chart(
-        df.to_dict(orient="records"),
-        x="energy",
-        y="danceability",
+        df=df.to_dict(orient="records"),
+        x="valence",
+        y="energy",
         color="cluster",
-        title="Track Clustering by Energy & Danceability",
-        hover_data=["track_name", "artist_name", "valence"],
-    )
-
-    st.subheader("Audio Feature Averages by Cluster")
-    avg = df.groupby("cluster_id")[["danceability", "energy", "valence", "tempo"]].mean()
-    avg.index = avg.index.map(int)
-    st.dataframe(
-        avg.round(3).rename_axis("Cluster"),
-        use_container_width=True,
+        title="Track Distribution in Mood Space",
+        hover_data=["track_name", "artist_name"],
     )
 else:
     st.info("No mood data available.")

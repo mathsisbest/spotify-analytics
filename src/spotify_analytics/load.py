@@ -48,15 +48,13 @@ class BigQueryLoader:
                     "track_id": item.track_id,
                     "played_at": _maybe_isoformat(item.played_at),
                     "track_name": item.track_name,
-                    "artist_id": item.artist_id,
                     "artist_name": item.artist_name,
-                    "artist_ids": item.artist_ids,
-                    "artist_names": item.artist_names,
+                    "artist_ids": item.artist_ids if isinstance(item.artist_ids, list) else [],
                     "album_name": item.album_name,
                     "album_id": item.album_id,
                     "duration_ms": item.duration_ms,
                     "context": item.context,
-                    "loaded_at": datetime.utcnow().isoformat(),
+                    "ingested_at": datetime.utcnow().isoformat() + "Z",
                 }
             )
         table = self._table_ref("streaming_history")
@@ -85,8 +83,8 @@ class BigQueryLoader:
                     "valence": feat.valence,
                     "tempo": feat.tempo,
                     "time_signature": feat.time_signature,
-                    "duration_ms": feat.duration_ms,
-                    "fetched_at": _maybe_isoformat(feat.fetched_at),
+                    "fetched_at": _maybe_isoformat(feat.fetched_at)
+                    or (datetime.utcnow().isoformat() + "Z"),
                 }
             )
         table = self._table_ref("track_features")
@@ -99,12 +97,13 @@ class BigQueryLoader:
         row = {
             "run_id": run.run_id,
             "started_at": _maybe_isoformat(run.started_at),
-            "finished_at": run.finished_at.isoformat() if run.finished_at else None,
-            "rows_ingested": run.rows_ingested,
-            "rows_enriched": run.rows_enriched,
+            "finished_at": _maybe_isoformat(run.finished_at)
+            if run.finished_at
+            else _maybe_isoformat(run.started_at),
             "status": run.status,
+            "tracks_ingested": run.rows_ingested,
+            "features_fetched": run.rows_enriched,
             "error_message": run.error_message,
-            "duration_seconds": run.duration_seconds,
         }
         table = self._table_ref("ingestion_runs")
         errors = self._client.insert_rows_json(table, [row])

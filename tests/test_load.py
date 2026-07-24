@@ -3,7 +3,6 @@ from unittest.mock import MagicMock, create_autospec, patch
 
 import pytest
 from google.cloud import bigquery
-
 from spotify_analytics.load import BigQueryLoader, BigQueryLoaderError
 from spotify_analytics.models import IngestionRun, StreamingHistoryItem, TrackFeatures
 
@@ -120,7 +119,7 @@ class TestBigQueryLoaderWriteIngestionRun:
         assert len(rows) == 1
         assert rows[0]["run_id"] == "r1"
         assert rows[0]["status"] == "success"
-        assert rows[0]["rows_ingested"] == 10
+        assert rows[0]["tracks_ingested"] == 10
 
     def test_write_error_raises(self, loader: BigQueryLoader) -> None:
         now = datetime.utcnow()

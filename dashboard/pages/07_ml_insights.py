@@ -14,7 +14,9 @@ st.header("ML Insights")
 st.caption("Machine learning predictions & recommendations for **Shylla**")
 
 st.subheader("Audio Feature Profile")
-categories, profiles = get_user_audio_profiles()
+raw_profiles = get_user_audio_profiles()
+categories = ["valence", "energy", "danceability", "acousticness", "liveness"]
+profiles = {name: [p[c] for c in categories] for name, p in raw_profiles.items()}
 radar_chart(
     categories=categories,
     profiles=profiles,
@@ -24,13 +26,12 @@ radar_chart(
 st.subheader("Listening Forecast (14 days)")
 
 forecast = get_forecast()
-if forecast:
-    dates = [r["forecast_date"] for r in forecast]
-    predicted = [r["predicted_minutes"] for r in forecast]
-    lower = [r["lower_bound"] for r in forecast]
-    upper = [r["upper_bound"] for r in forecast]
 
-    template_name = "spotify" if "spotify" in pio.templates else "plotly_dark"
+if forecast:
+    dates = [f["date"] for f in forecast]
+    yhat = [f["predicted_minutes"] for f in forecast]
+    lower = [f["lower_bound"] for f in forecast]
+    upper = [f["upper_bound"] for f in forecast]
 
     fig = go.Figure()
     fig.add_trace(
@@ -48,42 +49,42 @@ if forecast:
             y=lower,
             mode="lines",
             line=dict(width=0),
-            fillcolor="rgba(29,185,84,0.2)",
             fill="tonexty",
-            showlegend=False,
+            fillcolor="rgba(29, 185, 84, 0.15)",
+            name="Confidence Interval",
         )
     )
     fig.add_trace(
         go.Scatter(
             x=dates,
-            y=predicted,
+            y=yhat,
             mode="lines+markers",
-            line=dict(color="#1DB954", width=2),
-            name="Predicted Minutes",
+            line=dict(color="#1DB954", width=3),
+            name="Forecasted Minutes",
         )
     )
+    template = "spotify" if "spotify" in pio.templates else "plotly_dark"
     fig.update_layout(
-        title="Daily Listening Minutes (14-Day Forecast)",
-        template=template_name,
-        height=500,
+        title="Predicted Listening Minutes (Next 14 Days)",
+        xaxis_title="Date",
         yaxis_title="Minutes",
+        template=template,
+        height=450,
     )
     st.plotly_chart(fig, use_container_width=True)
 else:
     st.info("No forecast data available.")
 
+st.divider()
 st.subheader("Recommended Tracks")
+
 recs = get_recommendations()
+
 if recs:
-    rows = [
-        {
-            "Track": r["track_name"],
-            "Artist": r["artist_name"],
-            "Score": f"{r['score']:.2f}",
-            "Why": r["reason"],
-        }
-        for r in recs
-    ]
-    st.dataframe(rows, hide_index=True)
+    for rec in recs:
+        st.markdown(
+            f"🎵 **{rec['track_name']}** by *{rec['artist_name']}*\n"
+            f"   - {rec['reason']} (Score: {rec['score']:.2f})"
+        )
 else:
     st.info("No recommendations available.")

@@ -12,7 +12,7 @@ import requests
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 AUTH_URL = "https://accounts.spotify.com/authorize"
 SCOPE = "user-read-recently-played"
-REDIRECT_URI = "http://localhost:8888/callback"
+REDIRECT_URI = "http://127.0.0.1:8888/callback"
 
 auth_code: str | None = None
 

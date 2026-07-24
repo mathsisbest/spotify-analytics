@@ -1,0 +1,110 @@
+[0m14:31:23.319713 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109c96050>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109d15690>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109d15f10>]}
+
+
+============================== 14:31:23.324373 | 39af463d-870a-472e-8008-18729effcca6 ==============================
+[0m14:31:23.324373 [info ] [MainThread]: Running with dbt=1.11.11
+[0m14:31:23.324972 [debug] [MainThread]: running dbt with arguments {'cache_selected_only': 'False', 'log_path': '/Users/danielanand/Documents/Projects/spotify-analytics/transform/logs', 'write_json': 'True', 'target_path': 'None', 'use_experimental_parser': 'False', 'partial_parse': 'True', 'log_format': 'default', 'warn_error': 'None', 'invocation_command': 'dbt deps', 'log_cache_events': 'False', 'version_check': 'True', 'no_print': 'None', 'debug': 'False', 'send_anonymous_usage_stats': 'True', 'introspect': 'True', 'use_colors': 'True', 'empty': 'None', 'static_parser': 'True', 'fail_fast': 'False', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'indirect_selection': 'eager', 'quiet': 'False', 'printer_width': '80', 'profiles_dir': '/Users/danielanand/.dbt'}
+[0m14:31:23.506025 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '39af463d-870a-472e-8008-18729effcca6', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109e12c10>]}
+[0m14:31:23.526471 [info ] [MainThread]: Warning: No packages were found in packages.yml
+[0m14:31:23.527155 [info ] [MainThread]: Warning: No packages were found in packages.yml
+[0m14:31:23.530669 [debug] [MainThread]: Resource report: {"command_name": "deps", "command_success": true, "command_wall_clock_time": 0.2804255, "process_in_blocks": "0", "process_kernel_time": 0.304166, "process_mem_max_rss": "116604928", "process_out_blocks": "0", "process_user_time": 1.251508}
+[0m14:31:23.531363 [debug] [MainThread]: Command `dbt deps` succeeded at 14:31:23.531228 after 0.28 seconds
+[0m14:31:23.531732 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109c89150>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109d4b990>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x105a19810>]}
+[0m14:31:23.532071 [debug] [MainThread]: Flushing usage events
+[0m14:31:24.847173 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m14:38:13.481069 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10dd14d90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10de02550>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10de02cd0>]}
+
+
+============================== 14:38:13.486101 | 446f1052-9867-4dc5-9370-c20481022825 ==============================
+[0m14:38:13.486101 [info ] [MainThread]: Running with dbt=1.11.11
+[0m14:38:13.486805 [debug] [MainThread]: running dbt with arguments {'no_print': 'None', 'empty': 'False', 'send_anonymous_usage_stats': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'debug': 'False', 'quiet': 'False', 'log_format': 'default', 'profiles_dir': 'profiles', 'use_colors': 'True', 'write_json': 'True', 'printer_width': '80', 'log_cache_events': 'False', 'static_parser': 'True', 'use_experimental_parser': 'False', 'indirect_selection': 'eager', 'partial_parse': 'True', 'fail_fast': 'False', 'introspect': 'True', 'version_check': 'True', 'invocation_command': 'dbt build --profiles-dir profiles', 'cache_selected_only': 'False', 'warn_error': 'None', 'log_path': '/Users/danielanand/Documents/Projects/spotify-analytics/transform/logs', 'target_path': 'None'}
+[0m14:38:13.495332 [info ] [MainThread]: Error importing adapter: No module named 'dbt.adapters.bigquery'
+[0m14:38:13.496063 [error] [MainThread]: Encountered an error:
+Runtime Error
+  Credentials in profile "spotify_analytics", target "dev" invalid: Runtime Error
+    Could not find adapter type bigquery!
+[0m14:38:13.500261 [debug] [MainThread]: Resource report: {"command_name": "build", "command_success": false, "command_wall_clock_time": 0.10292687, "process_in_blocks": "0", "process_kernel_time": 0.340051, "process_mem_max_rss": "114786304", "process_out_blocks": "0", "process_user_time": 1.680888}
+[0m14:38:13.500955 [debug] [MainThread]: Command `dbt build` failed at 14:38:13.500828 after 0.10 seconds
+[0m14:38:13.501410 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10dd09390>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10dd0a650>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10daa7e50>]}
+[0m14:38:13.501828 [debug] [MainThread]: Flushing usage events
+[0m14:38:14.851943 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m14:38:45.642785 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bb0d850>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bbf2910>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bbf3050>]}
+
+
+============================== 14:38:45.648766 | 2c85c3b7-c472-4c40-9bf0-005f6d210749 ==============================
+[0m14:38:45.648766 [info ] [MainThread]: Running with dbt=1.11.12
+[0m14:38:45.649523 [debug] [MainThread]: running dbt with arguments {'no_print': 'None', 'debug': 'False', 'warn_error': 'None', 'log_format': 'default', 'partial_parse': 'True', 'send_anonymous_usage_stats': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'cache_selected_only': 'False', 'profiles_dir': 'transform/profiles', 'fail_fast': 'False', 'introspect': 'True', 'empty': 'False', 'version_check': 'True', 'use_experimental_parser': 'False', 'static_parser': 'True', 'use_colors': 'True', 'invocation_command': 'dbt build --project-dir transform --profiles-dir transform/profiles', 'target_path': 'None', 'log_cache_events': 'False', 'printer_width': '80', 'quiet': 'False', 'write_json': 'True', 'log_path': 'transform/logs', 'indirect_selection': 'eager'}
+[0m14:38:47.995293 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '2c85c3b7-c472-4c40-9bf0-005f6d210749', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x11321de10>]}
+[0m14:38:48.064731 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '2c85c3b7-c472-4c40-9bf0-005f6d210749', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x11601ec10>]}
+[0m14:38:48.065591 [info ] [MainThread]: Registered adapter: bigquery=1.11.3
+[0m14:38:48.276671 [debug] [MainThread]: checksum: f368f5348cf42803b94ef7fb8257ecf3bf9a9a16dd9c8c51fe5172f2dbeb457f, vars: {}, profile: , target: , version: 1.11.12
+[0m14:38:48.277573 [info ] [MainThread]: Unable to do partial parsing because saved manifest not found. Starting full parse.
+[0m14:38:48.278002 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'partial_parser', 'label': '2c85c3b7-c472-4c40-9bf0-005f6d210749', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1160120d0>]}
+[0m14:38:49.520295 [error] [MainThread]: Encountered an error:
+Compilation Error
+  Model 'model.spotify_analytics.stg_track_features' (models/staging/stg_track_features.sql) depends on a source named 'raw.track_features' which was not found
+[0m14:38:49.529177 [debug] [MainThread]: Resource report: {"command_name": "build", "command_success": false, "command_wall_clock_time": 3.9911263, "process_in_blocks": "0", "process_kernel_time": 1.019019, "process_mem_max_rss": "229982208", "process_out_blocks": "0", "process_user_time": 5.118807}
+[0m14:38:49.530591 [debug] [MainThread]: Command `dbt build` failed at 14:38:49.530220 after 3.99 seconds
+[0m14:38:49.531572 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bbf2b50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x11621b290>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x116689550>]}
+[0m14:38:49.532536 [debug] [MainThread]: Flushing usage events
+[0m14:38:50.915761 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m14:39:12.157094 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bb4f450>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bb66c10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bb67290>]}
+
+
+============================== 14:39:12.162560 | 03284b7a-9b67-4c1c-8e54-3e6dcff61da3 ==============================
+[0m14:39:12.162560 [info ] [MainThread]: Running with dbt=1.11.12
+[0m14:39:12.163235 [debug] [MainThread]: running dbt with arguments {'use_colors': 'True', 'empty': 'False', 'use_experimental_parser': 'False', 'log_path': 'transform/logs', 'version_check': 'True', 'quiet': 'False', 'indirect_selection': 'eager', 'invocation_command': 'dbt build --project-dir transform --profiles-dir transform/profiles', 'printer_width': '80', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'partial_parse': 'True', 'write_json': 'True', 'static_parser': 'True', 'no_print': 'None', 'debug': 'False', 'warn_error': 'None', 'profiles_dir': 'transform/profiles', 'log_format': 'default', 'target_path': 'None', 'fail_fast': 'False', 'log_cache_events': 'False', 'introspect': 'True', 'send_anonymous_usage_stats': 'True', 'cache_selected_only': 'False'}
+[0m14:39:13.690660 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '03284b7a-9b67-4c1c-8e54-3e6dcff61da3', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x115e79f10>]}
+[0m14:39:13.775842 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '03284b7a-9b67-4c1c-8e54-3e6dcff61da3', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108d1f310>]}
+[0m14:39:13.776813 [info ] [MainThread]: Registered adapter: bigquery=1.11.3
+[0m14:39:14.035953 [debug] [MainThread]: checksum: f368f5348cf42803b94ef7fb8257ecf3bf9a9a16dd9c8c51fe5172f2dbeb457f, vars: {}, profile: , target: , version: 1.11.12
+[0m14:39:14.037013 [info ] [MainThread]: Unable to do partial parsing because saved manifest not found. Starting full parse.
+[0m14:39:14.037513 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'partial_parser', 'label': '03284b7a-9b67-4c1c-8e54-3e6dcff61da3', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10ba7a5d0>]}
+[0m14:39:15.358987 [error] [MainThread]: Encountered an error:
+Compilation Error
+  Model 'model.spotify_analytics.stg_track_features' (models/staging/stg_track_features.sql) depends on a source named 'raw.track_features' which was not found
+[0m14:39:15.367286 [debug] [MainThread]: Resource report: {"command_name": "build", "command_success": false, "command_wall_clock_time": 3.303357, "process_in_blocks": "0", "process_kernel_time": 0.879896, "process_mem_max_rss": "210796544", "process_out_blocks": "0", "process_user_time": 4.650376}
+[0m14:39:15.368405 [debug] [MainThread]: Command `dbt build` failed at 14:39:15.368228 after 3.30 seconds
+[0m14:39:15.368941 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10b9bb450>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1165e5dd0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10ad8a910>]}
+[0m14:39:15.369461 [debug] [MainThread]: Flushing usage events
+[0m14:39:16.665108 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m14:39:28.700902 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d9e1fd0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10dab6b90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10dab5490>]}
+
+
+============================== 14:39:28.706398 | 4b458d05-9dab-480e-8a55-c8f9ce0e93f7 ==============================
+[0m14:39:28.706398 [info ] [MainThread]: Running with dbt=1.11.12
+[0m14:39:28.707095 [debug] [MainThread]: running dbt with arguments {'no_print': 'None', 'empty': 'False', 'indirect_selection': 'eager', 'partial_parse': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'use_colors': 'True', 'printer_width': '80', 'fail_fast': 'False', 'log_cache_events': 'False', 'version_check': 'True', 'profiles_dir': 'transform/profiles', 'introspect': 'True', 'log_path': 'transform/logs', 'write_json': 'True', 'log_format': 'default', 'use_experimental_parser': 'False', 'cache_selected_only': 'False', 'static_parser': 'True', 'quiet': 'False', 'send_anonymous_usage_stats': 'True', 'invocation_command': 'dbt build --profiles-dir transform/profiles --project-dir transform', 'warn_error': 'None', 'debug': 'False', 'target_path': 'None'}
+[0m14:39:30.193903 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '4b458d05-9dab-480e-8a55-c8f9ce0e93f7', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10dab4f90>]}
+[0m14:39:30.265025 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '4b458d05-9dab-480e-8a55-c8f9ce0e93f7', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10ac97910>]}
+[0m14:39:30.265904 [info ] [MainThread]: Registered adapter: bigquery=1.11.3
+[0m14:39:30.513444 [debug] [MainThread]: checksum: f368f5348cf42803b94ef7fb8257ecf3bf9a9a16dd9c8c51fe5172f2dbeb457f, vars: {}, profile: , target: , version: 1.11.12
+[0m14:39:30.514500 [info ] [MainThread]: Unable to do partial parsing because saved manifest not found. Starting full parse.
+[0m14:39:30.514988 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'partial_parser', 'label': '4b458d05-9dab-480e-8a55-c8f9ce0e93f7', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x117fb3a50>]}
+[0m14:39:32.009339 [error] [MainThread]: Encountered an error:
+Compilation Error
+  Model 'model.spotify_analytics.stg_track_features' (models/staging/stg_track_features.sql) depends on a source named 'raw.track_features' which was not found
+[0m14:39:32.018916 [debug] [MainThread]: Resource report: {"command_name": "build", "command_success": false, "command_wall_clock_time": 3.3990006, "process_in_blocks": "0", "process_kernel_time": 0.719569, "process_mem_max_rss": "209780736", "process_out_blocks": "0", "process_user_time": 4.337352}
+[0m14:39:32.020028 [debug] [MainThread]: Command `dbt build` failed at 14:39:32.019857 after 3.40 seconds
+[0m14:39:32.020881 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10dacca90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1098f6c90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10d9ebfd0>]}
+[0m14:39:32.021508 [debug] [MainThread]: Flushing usage events
+[0m14:39:33.508203 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m14:39:48.461365 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bcc3f50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bcc1950>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bdaec90>]}
+
+
+============================== 14:39:48.492268 | 970f26b1-e5e4-4063-9f8c-78edf23388c9 ==============================
+[0m14:39:48.492268 [info ] [MainThread]: Running with dbt=1.11.12
+[0m14:39:48.497705 [debug] [MainThread]: running dbt with arguments {'use_colors': 'True', 'use_experimental_parser': 'False', 'indirect_selection': 'eager', 'static_parser': 'True', 'write_json': 'True', 'profiles_dir': 'transform/profiles', 'send_anonymous_usage_stats': 'True', 'log_path': 'transform/logs', 'log_cache_events': 'False', 'cache_selected_only': 'False', 'target_path': 'None', 'no_print': 'None', 'introspect': 'True', 'warn_error': 'None', 'printer_width': '80', 'quiet': 'False', 'fail_fast': 'False', 'invocation_command': 'dbt build --project-dir transform --profiles-dir transform/profiles', 'debug': 'False', 'version_check': 'True', 'empty': 'False', 'log_format': 'default', 'partial_parse': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])'}
+[0m14:39:52.208201 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '970f26b1-e5e4-4063-9f8c-78edf23388c9', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x115f5b010>]}
+[0m14:39:52.669502 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '970f26b1-e5e4-4063-9f8c-78edf23388c9', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108f4d190>]}
+[0m14:39:52.671494 [info ] [MainThread]: Registered adapter: bigquery=1.11.3
+[0m14:39:53.350368 [debug] [MainThread]: checksum: f368f5348cf42803b94ef7fb8257ecf3bf9a9a16dd9c8c51fe5172f2dbeb457f, vars: {}, profile: , target: , version: 1.11.12
+[0m14:39:53.351951 [info ] [MainThread]: Unable to do partial parsing because saved manifest not found. Starting full parse.
+[0m14:39:53.352669 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'partial_parser', 'label': '970f26b1-e5e4-4063-9f8c-78edf23388c9', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x11602d290>]}
+[0m14:39:55.718244 [error] [MainThread]: Encountered an error:
+Compilation Error
+  Model 'model.spotify_analytics.stg_track_features' (models/staging/stg_track_features.sql) depends on a source named 'raw.track_features' which was not found
+[0m14:39:55.729764 [debug] [MainThread]: Resource report: {"command_name": "build", "command_success": false, "command_wall_clock_time": 7.459695, "process_in_blocks": "0", "process_kernel_time": 1.382273, "process_mem_max_rss": "198344704", "process_out_blocks": "0", "process_user_time": 5.87649}
+[0m14:39:55.731595 [debug] [MainThread]: Command `dbt build` failed at 14:39:55.731239 after 7.46 seconds
+[0m14:39:55.732722 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10bdaea10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x11669a0d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x116653c50>]}
+[0m14:39:55.733456 [debug] [MainThread]: Flushing usage events
+[0m14:39:56.974831 [debug] [MainThread]: An error was encountered while trying to flush usage events

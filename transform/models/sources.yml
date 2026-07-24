@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: marts
-    database: "{{ env_var('BQ_PROJECT', env_var('BQ_PROJECT_DEV', 'spotify-analytics')) }}"
+    database: "{{ env_var('GCP_PROJECT_ID', env_var('BQ_PROJECT', 'spotify-analytics-76dd657e')) }}"
     schema: "{{ env_var('MARTS_DATASET', 'marts') }}"
     description: "ML training outputs written to the marts layer."
 
@@ -81,7 +81,7 @@ sources:
           - name: trained_at
             description: "Timestamp when the model was trained."
   - name: raw
-    database: "{{ env_var('BQ_PROJECT', env_var('BQ_PROJECT_DEV', 'spotify-analytics')) }}"
+    database: "{{ env_var('GCP_PROJECT_ID', env_var('BQ_PROJECT', 'spotify-analytics-76dd657e')) }}"
     schema: "{{ env_var('RAW_DATASET', 'raw') }}"
     description: "Raw ingestion layer — landing zone for Spotify API data."
 
