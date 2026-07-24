@@ -5,7 +5,7 @@ from dashboard.components import bar_chart, kpi_card
 from dashboard.data import get_top_tracks
 
 st.title("🎵 Top Track Analytics")
-st.caption("Shylla's most played songs & streaming frequency")
+st.caption("Most played songs & streaming frequency")
 
 limit = st.slider("Select Top N Tracks", min_value=5, max_value=30, value=10)
 

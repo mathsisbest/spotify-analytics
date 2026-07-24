@@ -312,5 +312,5 @@ class TestGetRawHistory:
 class TestUserProfileSupport:
     def test_user_audio_profiles(self) -> None:
         profiles = get_user_audio_profiles()
-        assert "Shylla" in profiles
-        assert "valence" in profiles["Shylla"]
+        assert "user" in profiles
+        assert "valence" in profiles["user"]

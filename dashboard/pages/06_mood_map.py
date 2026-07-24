@@ -5,7 +5,7 @@ from dashboard.components import radar_chart, scatter_chart
 from dashboard.data import get_mood_map, get_user_audio_profiles
 
 st.title("🎨 Mood Space & Audio Fingerprint")
-st.caption("Acoustic feature analysis & mood clustering for **Shylla**")
+st.caption("Acoustic feature analysis & mood clustering")
 
 raw_profiles = get_user_audio_profiles()
 categories = ["valence", "energy", "danceability", "acousticness", "liveness"]
@@ -18,22 +18,22 @@ with col_radar:
 
 with col_info:
     st.markdown("### Audio Profile Highlights")
-    shylla_p = raw_profiles.get("Shylla", {})
+    user_p = raw_profiles.get("user", {})
     st.progress(
-        float(shylla_p.get("energy", 0.7)),
-        text=f"Energy ({shylla_p.get('energy', 0.7) * 100:.0f}%)",
+        float(user_p.get("energy", 0.7)),
+        text=f"Energy ({user_p.get('energy', 0.7) * 100:.0f}%)",
     )
     st.progress(
-        float(shylla_p.get("danceability", 0.65)),
-        text=f"Danceability ({shylla_p.get('danceability', 0.65) * 100:.0f}%)",
+        float(user_p.get("danceability", 0.65)),
+        text=f"Danceability ({user_p.get('danceability', 0.65) * 100:.0f}%)",
     )
     st.progress(
-        float(shylla_p.get("valence", 0.6)),
-        text=f"Valence / Positivity ({shylla_p.get('valence', 0.6) * 100:.0f}%)",
+        float(user_p.get("valence", 0.6)),
+        text=f"Valence / Positivity ({user_p.get('valence', 0.6) * 100:.0f}%)",
     )
     st.progress(
-        float(shylla_p.get("acousticness", 0.3)),
-        text=f"Acousticness ({shylla_p.get('acousticness', 0.3) * 100:.0f}%)",
+        float(user_p.get("acousticness", 0.3)),
+        text=f"Acousticness ({user_p.get('acousticness', 0.3) * 100:.0f}%)",
     )
 
 st.divider()

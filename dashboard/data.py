@@ -293,7 +293,7 @@ def get_user_audio_profiles() -> dict[str, dict[str, float]]:
             "liveness": float(row["liveness"]),
         }
     return {
-        "Shylla": p1,
+        "user": p1,
     }
 
 
@@ -365,7 +365,7 @@ def get_recommendations(user_profile: str | None = None) -> list[dict[str, Any]]
             {
                 "track_name": row["track_name"],
                 "artist_name": row["artist_name"],
-                "reason": f"Based on {row['artist_name']} frequently played in Shylla's history",
+                "reason": f"Based on {row['artist_name']} frequently played in your history",
                 "score": 0.95,
             }
         )
