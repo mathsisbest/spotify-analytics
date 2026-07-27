@@ -210,7 +210,7 @@ class TestFetchRefreshTokenFromSecretManager:
         mock_client.access_secret_version.return_value = mock_response
 
         with patch(
-            "google.cloud.secretmanager.SecretManagerServiceClient", return_value=mock_client
+            "google.cloud.secretmanager_v1.SecretManagerServiceClient", return_value=mock_client
         ):
             token = fetch_refresh_token_from_secret_manager("my-secret", "my-project")
 
