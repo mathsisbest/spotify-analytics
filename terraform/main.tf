@@ -36,6 +36,8 @@ resource "google_project_service" "services" {
     "artifactregistry.googleapis.com",
     "pubsub.googleapis.com",
     "cloudbuild.googleapis.com",
+    "monitoring.googleapis.com",
+    "logging.googleapis.com",
   ])
   service            = each.key
   disable_on_destroy = false
