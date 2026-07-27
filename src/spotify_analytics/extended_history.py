@@ -18,7 +18,10 @@ class ExtendedStreamingHistoryItem(BaseModel):
 
 
 def parse_extended_history_json(json_content: str) -> list[dict[str, Any]]:
-    raw_data = json.loads(json_content)
+    try:
+        raw_data = json.loads(json_content)
+    except Exception:
+        return []
     if not isinstance(raw_data, list):
         return []
 
