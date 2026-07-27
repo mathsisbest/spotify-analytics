@@ -344,3 +344,34 @@ class TestClientClose:
         with patch.object(client._session, "close") as mock_close:
             client.close()
         mock_close.assert_called_once()
+
+
+class TestClientGetCurrentlyPlaying:
+    def test_currently_playing_active(self, client: SpotifyClient) -> None:
+        payload = {
+            "is_playing": True,
+            "progress_ms": 45000,
+            "item": {
+                "id": "t100",
+                "name": "Live Track",
+                "duration_ms": 180000,
+                "artists": [{"name": "Live Artist"}],
+                "album": {"name": "Live Album", "images": [{"url": "http://art.jpg"}]},
+            },
+        }
+        mock_resp = _mock_response(200, payload)
+        with patch.object(client._session, "request", return_value=mock_resp):
+            res = client.get_currently_playing()
+
+        assert res is not None
+        assert res["is_playing"] is True
+        assert res["track_name"] == "Live Track"
+        assert res["artist_name"] == "Live Artist"
+        assert res["album_art_url"] == "http://art.jpg"
+
+    def test_currently_playing_inactive(self, client: SpotifyClient) -> None:
+        mock_resp = _mock_response(204, {})
+        with patch.object(client._session, "request", return_value=mock_resp):
+            res = client.get_currently_playing()
+
+        assert res is None

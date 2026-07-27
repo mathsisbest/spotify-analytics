@@ -378,6 +378,29 @@ def get_raw_history(limit: int = 100) -> list[dict[str, Any]]:
     return res
 
 
+@st.cache_data(ttl=10)
+def get_now_playing() -> dict[str, Any] | None:
+    import os
+
+    from spotify_analytics.auth import TokenStore
+    from spotify_analytics.client import SpotifyClient
+
+    client_id = os.environ.get("SPOTIFY_CLIENT_ID")
+    client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
+    refresh_token = os.environ.get("SPOTIFY_REFRESH_TOKEN")
+
+    if not (client_id and client_secret and refresh_token):
+        return None
+
+    try:
+        store = TokenStore(client_id, client_secret)
+        store.set_refresh_token(refresh_token)
+        client = SpotifyClient(store)
+        return client.get_currently_playing()
+    except Exception:
+        return None
+
+
 @st.cache_data(ttl=30)
 def get_last_ingestion_run() -> dict[str, Any] | None:
     client = get_bq_client()
