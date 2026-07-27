@@ -25,3 +25,10 @@ clean:
 	find . -type f -name '*.pyc' -delete
 	rm -rf .pytest_cache .ruff_cache .mypy_cache .coverage
 	rm -rf *.egg-info
+
+docker-build:
+	docker build -f dashboard/Dockerfile -t resonance-dashboard dashboard/
+
+docker-run:
+	docker run -p 8080:8080 --env-file .env resonance-dashboard
+

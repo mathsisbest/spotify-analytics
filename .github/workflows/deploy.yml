@@ -45,6 +45,7 @@ jobs:
       - name: Build and push dashboard image
         run: |
           docker build -f dashboard/Dockerfile \
+            --build-arg VERSION=${{ github.sha }} \
             -t ${{ env.DASHBOARD_IMAGE }}:${{ github.sha }} \
             -t ${{ env.DASHBOARD_IMAGE }}:latest \
             dashboard/
@@ -58,3 +59,8 @@ jobs:
             --region ${{ env.GCP_REGION }} \
             --allow-unauthenticated \
             --project ${{ env.GCP_PROJECT_ID }}
+      - name: Smoke test deployment
+        run: |
+          URL=$(gcloud run services describe ${{ env.DASHBOARD_SERVICE }} --region ${{ env.GCP_REGION }} --format 'value(status.url)')
+          curl -f "${URL}/_stcore/health" || exit 1
+
