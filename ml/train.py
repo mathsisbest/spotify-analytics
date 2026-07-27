@@ -1,5 +1,5 @@
 """
-Training pipeline for Spotify analytics ML models.
+Training pipeline for Spotify analytics ML models (clustering, skip prediction, forecasting).
 
 Usage:
     python -m ml.train --mode cluster
