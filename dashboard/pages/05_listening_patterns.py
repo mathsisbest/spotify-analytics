@@ -4,7 +4,7 @@ from dashboard.components import heatmap_chart, kpi_card
 from dashboard.data import get_listening_heatmap
 
 st.title("🕒 Listening Rhythms & Heatmaps")
-st.caption("Day × Hour activity patterns identifying peak listening windows for **Shylla**")
+st.caption("Day × Hour activity patterns identifying peak listening windows")
 
 data = get_listening_heatmap()
 

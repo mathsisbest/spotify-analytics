@@ -1,4 +1,4 @@
-# Spotify Analytics — Project Profile
+# Resonance (Spotify Analytics) — Project Profile
 
 ## Stack
 Python 3.11, BigQuery, dbt-bigquery, scikit-learn, Streamlit, pytest, ruff, mypy

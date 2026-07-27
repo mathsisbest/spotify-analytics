@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Shylla's Spotify Analytics & BI Studio",
+    page_title="Resonance — Spotify Analytics & BI Studio",
     page_icon="🎵",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -93,7 +93,7 @@ st.markdown(custom_css, unsafe_allow_html=True)
 st.sidebar.markdown(
     """
     <div style="text-align: center; padding: 10px 0;">
-        <h2 style="color: #1DB954; font-weight: 800; margin: 0;">🎵 Shylla Analytics</h2>
+        <h2 style="color: #1DB954; font-weight: 800; margin: 0;">🎵 Resonance</h2>
         <p style="color: #B3B3B3; font-size: 0.85rem; margin-top: 4px;">
             Cloud-Native Music Intelligence
         </p>

@@ -7,7 +7,7 @@ from dashboard.components import kpi_card, time_series_chart
 from dashboard.data import get_daily_summary, get_recent_tracks
 
 st.title("🎧 Executive Overview")
-st.caption("Real-time listening activity & streaming metrics for **Shylla**")
+st.caption("Real-time listening activity & streaming metrics")
 
 today = date.today()
 default_start = today - timedelta(days=30)

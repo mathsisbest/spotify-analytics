@@ -5,7 +5,7 @@ from dashboard.components import bar_chart, donut_chart, kpi_card
 from dashboard.data import get_top_artists
 
 st.title("🎤 Top Artists Intelligence")
-st.caption("Artist listening concentration & distribution for **Shylla**")
+st.caption("Artist listening concentration & distribution")
 
 limit = st.slider("Select Top N Artists", min_value=5, max_value=30, value=10)
 
