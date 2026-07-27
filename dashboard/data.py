@@ -11,6 +11,12 @@ PROJECT_ID = "spotify-analytics-76dd657e"
 
 @st.cache_resource
 def get_bq_client() -> bigquery.Client:
+    if "gcp_service_account" in st.secrets:
+        from google.oauth2 import service_account
+
+        info = dict(st.secrets["gcp_service_account"])
+        credentials = service_account.Credentials.from_service_account_info(info)
+        return bigquery.Client(project=PROJECT_ID, credentials=credentials)
     return bigquery.Client(project=PROJECT_ID)
 
 
@@ -511,9 +517,13 @@ def get_now_playing() -> dict[str, Any] | None:
     from spotify_analytics.auth import TokenStore
     from spotify_analytics.client import SpotifyClient
 
-    client_id = os.environ.get("SPOTIFY_CLIENT_ID")
-    client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
-    refresh_token = os.environ.get("SPOTIFY_REFRESH_TOKEN")
+    client_id = os.environ.get("SPOTIFY_CLIENT_ID") or st.secrets.get("SPOTIFY_CLIENT_ID")
+    client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET") or st.secrets.get(
+        "SPOTIFY_CLIENT_SECRET"
+    )
+    refresh_token = os.environ.get("SPOTIFY_REFRESH_TOKEN") or st.secrets.get(
+        "SPOTIFY_REFRESH_TOKEN"
+    )
 
     if not (client_id and client_secret and refresh_token):
         return None
@@ -565,9 +575,13 @@ def export_playlist(track_ids: list[str], playlist_name: str) -> str | None:
     from spotify_analytics.auth import TokenStore
     from spotify_analytics.client import SpotifyClient
 
-    client_id = os.environ.get("SPOTIFY_CLIENT_ID")
-    client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
-    refresh_token = os.environ.get("SPOTIFY_REFRESH_TOKEN")
+    client_id = os.environ.get("SPOTIFY_CLIENT_ID") or st.secrets.get("SPOTIFY_CLIENT_ID")
+    client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET") or st.secrets.get(
+        "SPOTIFY_CLIENT_SECRET"
+    )
+    refresh_token = os.environ.get("SPOTIFY_REFRESH_TOKEN") or st.secrets.get(
+        "SPOTIFY_REFRESH_TOKEN"
+    )
 
     if not (client_id and client_secret and refresh_token and track_ids):
         return None
