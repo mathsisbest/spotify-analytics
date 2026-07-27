@@ -13,8 +13,11 @@ terraform {
       version = "~> 2.0"
     }
   }
-  # Local backend for now; switch to GCS when team/CI requires state locking
-  backend "local" {}
+  # GCS Remote Backend for State Storage & Locking
+  backend "gcs" {
+    bucket = "spotify-analytics-76dd657e-tfstate"
+    prefix = "terraform/state"
+  }
 }
 
 provider "google" {
