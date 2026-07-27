@@ -6,8 +6,9 @@ import streamlit as st
 from dashboard.components import area_chart, kpi_card
 from dashboard.data import get_genre_trends
 
-st.title("🎸 Genre & Artist Evolution")
-st.caption("Tracking how your music preferences evolve over time")
+st.title("🎸 Genre & Style Evolution")
+st.markdown("##### *Temporal Shifts in Genre Preferences & Catalog Diversity*")
+st.caption("Track how your listening habits transition across musical genres over time.")
 
 today = date.today()
 default_start = today - timedelta(days=90)
@@ -33,17 +34,18 @@ if trends:
     k1, k2 = st.columns(2)
     with k1:
         kpi_card(
-            "#1 Top Genre / Artist",
+            "#1 Dominant Genre Category",
             top_genre_row["genre"],
             help_text="Most listened genre category",
         )
     with k2:
         kpi_card(
-            "Active Categories",
+            "Active Genre Categories",
             str(unique_genres),
-            help_text="Distinct genre categories in time range",
+            help_text="Distinct genre categories present in date window",
         )
 
+    st.markdown("<br>", unsafe_allow_html=True)
     area_chart(
         trends,
         x="listening_date" if "listening_date" in trends[0] else "date",
@@ -53,4 +55,4 @@ if trends:
         height=450,
     )
 else:
-    st.info("No genre trend data for the selected date range.")
+    st.info("No genre trend data available for the selected date range.")

@@ -1,13 +1,18 @@
+from datetime import datetime
+
 import plotly.graph_objects as go
 import plotly.io as pio
 import streamlit as st
 
 import dashboard.theme  # noqa: F401
 from dashboard.components import kpi_card
-from dashboard.data import get_forecast, get_recommendations
+from dashboard.data import export_playlist, get_forecast, get_recommendations
 
-st.title("🤖 Predictive AI & Smart Insights")
-st.caption("Time-series volume forecasting & algorithmic track recommendations")
+st.title("🤖 Predictive AI & Smart Recommendations")
+st.markdown("##### *Time-Series Volume Forecasting & Cosine Vector Playlist Generation*")
+st.caption(
+    "Scikit-Learn ML models forecasting daily streaming volume and generating vector-matched playlist recommendations."
+)
 
 forecast = get_forecast()
 
@@ -34,6 +39,7 @@ if forecast:
             help_text="Expected daily average listening volume",
         )
 
+    st.markdown("<br>", unsafe_allow_html=True)
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
@@ -77,8 +83,10 @@ else:
     st.info("No forecast model available.")
 
 st.divider()
-st.subheader("💡 Algorithmic Recommendations")
-st.caption("Personalized song recommendations based on acoustic feature similarity")
+st.subheader("💡 Algorithmic Playlist Recommendations (Cosine Similarity)")
+st.caption(
+    "Personalized song recommendations generated via 12-dimensional acoustic feature vector matching."
+)
 
 recs = get_recommendations()
 
@@ -90,11 +98,9 @@ if recs:
                 st.markdown(f"🎵 **{rec['track_name']}** by *{rec['artist_name']}*")
                 st.caption(rec["reason"])
             with col_score:
-                st.caption(f"Score: {rec.get('score', 0.95):.2f}")
+                st.caption(f"Vector Similarity: **{rec.get('score', 0.95):.2f}**")
 
-    from datetime import datetime
-
-    from dashboard.data import export_playlist
+    st.markdown("<br>", unsafe_allow_html=True)
 
     track_ids = [
         r.get("track_id", f"track_{i}")
@@ -103,11 +109,13 @@ if recs:
     ]
     playlist_name = f"Resonance Mix — {datetime.now().strftime('%Y-%m-%d')}"
 
-    if st.button("🎧 Export as Spotify Playlist", type="primary"):
+    if st.button("🎧 Export Recommendations as Spotify Playlist", type="primary"):
         url = export_playlist(track_ids, playlist_name)
         if url:
-            st.success(f"Playlist created! [Open in Spotify]({url})")
+            st.success(
+                f"🎉 Playlist successfully created on your Spotify account! [Open Playlist in Spotify]({url})"
+            )
         else:
-            st.error("Failed to create playlist. Check Spotify credentials.")
+            st.error("Failed to create playlist. Ensure Spotify credentials are valid.")
 else:
     st.info("No recommendations available.")
