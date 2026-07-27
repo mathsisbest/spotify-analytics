@@ -22,3 +22,7 @@ DARK_TEMPLATE = go.layout.Template(
 
 pio.templates["spotify"] = DARK_TEMPLATE
 pio.templates.default = "spotify"
+
+
+def apply_spotify_theme() -> None:
+    pio.templates.default = "spotify"
