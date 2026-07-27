@@ -32,3 +32,10 @@ variable "spotify_refresh_token" {
   type        = string
   sensitive   = true
 }
+
+variable "alert_email" {
+  description = "Email address for Cloud Monitoring alerts"
+  type        = string
+  default     = "admin@example.com"
+}
+
