@@ -123,7 +123,7 @@ class TokenStore:
 
 def fetch_refresh_token_from_secret_manager(secret_id: str, project_id: str | None = None) -> str:
     try:
-        from google.cloud import secretmanager
+        from google.cloud import secretmanager  # type: ignore[attr-defined]
     except ImportError as err:
         msg = "google-cloud-secretmanager package is required to fetch secrets"
         raise SpotifyAuthError(msg) from err
@@ -136,7 +136,8 @@ def fetch_refresh_token_from_secret_manager(secret_id: str, project_id: str | No
         client = secretmanager.SecretManagerServiceClient()
         name = f"projects/{proj}/secrets/{secret_id}/versions/latest"
         response = client.access_secret_version(request={"name": name})
-        return response.payload.data.decode("UTF-8").strip()
+        secret_data: str = response.payload.data.decode("UTF-8").strip()
+        return secret_data
     except Exception as e:
         raise SpotifyAuthError(f"Failed to fetch refresh token from Secret Manager: {e}") from e
 
