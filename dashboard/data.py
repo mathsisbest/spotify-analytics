@@ -25,14 +25,32 @@ def get_recent_tracks(limit: int = 20, user_profile: str | None = None) -> list[
             COALESCE(album_name, 'Unknown Album') as album_name,
             played_at,
             COALESCE(duration_ms, 180000) as duration_ms
-        FROM `spotify-analytics-76dd657e.raw.streaming_history`
+        FROM `spotify-analytics-76dd657e.marts.fct_listening`
         ORDER BY played_at DESC
         LIMIT @limit
     """
     job_config = bigquery.QueryJobConfig(
         query_parameters=[bigquery.ScalarQueryParameter("limit", "INT64", limit)]
     )
-    df = client.query(query, job_config=job_config).to_dataframe()
+    try:
+        df = client.query(query, job_config=job_config).to_dataframe()
+        if df.empty:
+            raise ValueError("Empty marts")
+    except Exception:
+        fallback_query = """
+            SELECT
+                COALESCE(track_id, 't_unknown') as track_id,
+                COALESCE(track_name, 'Unknown Track') as track_name,
+                COALESCE(artist_name, 'Unknown Artist') as artist_name,
+                COALESCE(album_name, 'Unknown Album') as album_name,
+                played_at,
+                COALESCE(duration_ms, 180000) as duration_ms
+            FROM `spotify-analytics-76dd657e.raw.streaming_history`
+            ORDER BY played_at DESC
+            LIMIT @limit
+        """
+        df = client.query(fallback_query, job_config=job_config).to_dataframe()
+
     if df.empty:
         return []
     df["played_at"] = pd.to_datetime(df["played_at"]).dt.strftime("%Y-%m-%d %H:%M:%S")
@@ -48,15 +66,30 @@ def get_daily_summary(
     client = get_bq_client()
     query = """
         SELECT
-            DATE(played_at) as date,
-            COUNT(*) as track_count,
-            CAST(SUM(duration_ms) / 60000.0 AS FLOAT64) as minutes_listened,
-            COUNT(DISTINCT artist_name) as unique_artists
-        FROM `spotify-analytics-76dd657e.raw.streaming_history`
-        GROUP BY 1
+            listening_date as date,
+            track_count,
+            CAST(minutes_listened AS FLOAT64) as minutes_listened,
+            artist_count as unique_artists
+        FROM `spotify-analytics-76dd657e.marts.fct_daily_summary`
         ORDER BY 1 ASC
     """
-    df = client.query(query).to_dataframe()
+    try:
+        df = client.query(query).to_dataframe()
+        if df.empty:
+            raise ValueError("Empty marts")
+    except Exception:
+        fallback_query = """
+            SELECT
+                DATE(played_at) as date,
+                COUNT(*) as track_count,
+                CAST(SUM(duration_ms) / 60000.0 AS FLOAT64) as minutes_listened,
+                COUNT(DISTINCT artist_name) as unique_artists
+            FROM `spotify-analytics-76dd657e.raw.streaming_history`
+            GROUP BY 1
+            ORDER BY 1 ASC
+        """
+        df = client.query(fallback_query).to_dataframe()
+
     if df.empty:
         return []
     records = []
@@ -83,7 +116,7 @@ def get_top_artists(limit: int = 10, user_profile: str | None = None) -> list[di
             artist_name,
             COUNT(*) AS listen_count,
             CAST(SUM(duration_ms) / 60000.0 AS FLOAT64) AS minutes_listened
-        FROM `spotify-analytics-76dd657e.raw.streaming_history`
+        FROM `spotify-analytics-76dd657e.marts.fct_listening`
         WHERE artist_name IS NOT NULL AND artist_name != ''
         GROUP BY artist_name
         ORDER BY listen_count DESC
@@ -92,7 +125,24 @@ def get_top_artists(limit: int = 10, user_profile: str | None = None) -> list[di
     job_config = bigquery.QueryJobConfig(
         query_parameters=[bigquery.ScalarQueryParameter("limit", "INT64", limit)]
     )
-    df = client.query(query, job_config=job_config).to_dataframe()
+    try:
+        df = client.query(query, job_config=job_config).to_dataframe()
+        if df.empty:
+            raise ValueError("Empty marts")
+    except Exception:
+        fallback_query = """
+            SELECT
+                artist_name,
+                COUNT(*) AS listen_count,
+                CAST(SUM(duration_ms) / 60000.0 AS FLOAT64) AS minutes_listened
+            FROM `spotify-analytics-76dd657e.raw.streaming_history`
+            WHERE artist_name IS NOT NULL AND artist_name != ''
+            GROUP BY artist_name
+            ORDER BY listen_count DESC
+            LIMIT @limit
+        """
+        df = client.query(fallback_query, job_config=job_config).to_dataframe()
+
     return cast(list[dict[str, Any]], df.to_dict(orient="records"))
 
 
@@ -105,7 +155,7 @@ def get_top_tracks(limit: int = 10, user_profile: str | None = None) -> list[dic
             artist_name,
             COUNT(*) AS listen_count,
             CAST(SUM(duration_ms) / 60000.0 AS FLOAT64) AS minutes_listened
-        FROM `spotify-analytics-76dd657e.raw.streaming_history`
+        FROM `spotify-analytics-76dd657e.marts.fct_listening`
         WHERE track_name IS NOT NULL AND track_name != ''
         GROUP BY track_name, artist_name
         ORDER BY listen_count DESC
@@ -114,7 +164,25 @@ def get_top_tracks(limit: int = 10, user_profile: str | None = None) -> list[dic
     job_config = bigquery.QueryJobConfig(
         query_parameters=[bigquery.ScalarQueryParameter("limit", "INT64", limit)]
     )
-    df = client.query(query, job_config=job_config).to_dataframe()
+    try:
+        df = client.query(query, job_config=job_config).to_dataframe()
+        if df.empty:
+            raise ValueError("Empty marts")
+    except Exception:
+        fallback_query = """
+            SELECT
+                track_name,
+                artist_name,
+                COUNT(*) AS listen_count,
+                CAST(SUM(duration_ms) / 60000.0 AS FLOAT64) AS minutes_listened
+            FROM `spotify-analytics-76dd657e.raw.streaming_history`
+            WHERE track_name IS NOT NULL AND track_name != ''
+            GROUP BY track_name, artist_name
+            ORDER BY listen_count DESC
+            LIMIT @limit
+        """
+        df = client.query(fallback_query, job_config=job_config).to_dataframe()
+
     return cast(list[dict[str, Any]], df.to_dict(orient="records"))
 
 
@@ -126,7 +194,7 @@ def get_dual_top_tracks(limit: int = 10) -> list[dict[str, Any]]:
             track_name,
             artist_name,
             COUNT(*) AS listen_count
-        FROM `spotify-analytics-76dd657e.raw.streaming_history`
+        FROM `spotify-analytics-76dd657e.marts.fct_listening`
         GROUP BY track_name, artist_name
         ORDER BY listen_count DESC
         LIMIT @limit
@@ -134,7 +202,23 @@ def get_dual_top_tracks(limit: int = 10) -> list[dict[str, Any]]:
     job_config = bigquery.QueryJobConfig(
         query_parameters=[bigquery.ScalarQueryParameter("limit", "INT64", limit)]
     )
-    df = client.query(query, job_config=job_config).to_dataframe()
+    try:
+        df = client.query(query, job_config=job_config).to_dataframe()
+        if df.empty:
+            raise ValueError("Empty marts")
+    except Exception:
+        fallback_query = """
+            SELECT
+                track_name,
+                artist_name,
+                COUNT(*) AS listen_count
+            FROM `spotify-analytics-76dd657e.raw.streaming_history`
+            GROUP BY track_name, artist_name
+            ORDER BY listen_count DESC
+            LIMIT @limit
+        """
+        df = client.query(fallback_query, job_config=job_config).to_dataframe()
+
     if df.empty:
         return []
     df["user1_count"] = df["listen_count"]
@@ -154,11 +238,26 @@ def get_genre_trends(
             DATE(played_at) as date,
             artist_name as genre,
             COUNT(*) as listen_count
-        FROM `spotify-analytics-76dd657e.raw.streaming_history`
+        FROM `spotify-analytics-76dd657e.marts.fct_listening`
         GROUP BY 1, 2
         ORDER BY 1 ASC
     """
-    df = client.query(query).to_dataframe()
+    try:
+        df = client.query(query).to_dataframe()
+        if df.empty:
+            raise ValueError("Empty marts")
+    except Exception:
+        fallback_query = """
+            SELECT
+                DATE(played_at) as date,
+                artist_name as genre,
+                COUNT(*) as listen_count
+            FROM `spotify-analytics-76dd657e.raw.streaming_history`
+            GROUP BY 1, 2
+            ORDER BY 1 ASC
+        """
+        df = client.query(fallback_query).to_dataframe()
+
     if df.empty:
         return []
 
@@ -189,10 +288,25 @@ def get_listening_heatmap(user_profile: str | None = None) -> list[dict[str, Any
             EXTRACT(HOUR FROM played_at) as hour_of_day,
             COUNT(*) as listen_count,
             SUM(duration_ms) / 60000.0 as minutes
-        FROM `spotify-analytics-76dd657e.raw.streaming_history`
+        FROM `spotify-analytics-76dd657e.marts.fct_listening`
         GROUP BY 1, 2
     """
-    df = client.query(query).to_dataframe()
+    try:
+        df = client.query(query).to_dataframe()
+        if df.empty:
+            raise ValueError("Empty marts")
+    except Exception:
+        fallback_query = """
+            SELECT
+                EXTRACT(DAYOFWEEK FROM played_at) as day_of_week,
+                EXTRACT(HOUR FROM played_at) as hour_of_day,
+                COUNT(*) as listen_count,
+                SUM(duration_ms) / 60000.0 as minutes
+            FROM `spotify-analytics-76dd657e.raw.streaming_history`
+            GROUP BY 1, 2
+        """
+        df = client.query(fallback_query).to_dataframe()
+
     if df.empty:
         return []
     days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -225,14 +339,12 @@ def get_mood_map(user_profile: str | None = None) -> list[dict[str, Any]]:
             h.track_id,
             h.track_name,
             h.artist_name,
-            COALESCE(f.valence, 0.6) as valence,
-            COALESCE(f.energy, 0.7) as energy,
-            COALESCE(f.danceability, 0.65) as danceability,
-            COALESCE(f.tempo, 120.0) as tempo,
+            COALESCE(h.valence, 0.6) as valence,
+            COALESCE(h.energy, 0.7) as energy,
+            COALESCE(h.danceability, 0.65) as danceability,
+            COALESCE(h.tempo, 120.0) as tempo,
             COALESCE(c.cluster_id, 0) as cluster_id
-        FROM `spotify-analytics-76dd657e.raw.streaming_history` h
-        LEFT JOIN `spotify-analytics-76dd657e.raw.track_features` f
-        ON h.track_id = f.track_id
+        FROM `spotify-analytics-76dd657e.marts.fct_listening` h
         LEFT JOIN `spotify-analytics-76dd657e.marts.ml_cluster_assignments` c
         ON h.track_id = c.track_id
         WHERE h.track_name IS NOT NULL
@@ -241,7 +353,6 @@ def get_mood_map(user_profile: str | None = None) -> list[dict[str, Any]]:
     try:
         df = client.query(query).to_dataframe()
     except Exception:
-        # Fallback to query raw streaming history without marts join
         query_fallback = """
             SELECT
                 h.track_id,
@@ -265,16 +376,31 @@ def get_user_audio_profiles() -> dict[str, dict[str, float]]:
     client = get_bq_client()
     query = """
         SELECT
-            AVG(COALESCE(f.valence, 0.6)) as valence,
-            AVG(COALESCE(f.energy, 0.7)) as energy,
-            AVG(COALESCE(f.danceability, 0.65)) as danceability,
-            AVG(COALESCE(f.acousticness, 0.3)) as acousticness,
-            AVG(COALESCE(f.liveness, 0.2)) as liveness
-        FROM `spotify-analytics-76dd657e.raw.streaming_history` h
-        LEFT JOIN `spotify-analytics-76dd657e.raw.track_features` f
-        ON h.track_id = f.track_id
+            AVG(COALESCE(valence, 0.6)) as valence,
+            AVG(COALESCE(energy, 0.7)) as energy,
+            AVG(COALESCE(danceability, 0.65)) as danceability,
+            AVG(COALESCE(acousticness, 0.3)) as acousticness,
+            AVG(COALESCE(liveness, 0.2)) as liveness
+        FROM `spotify-analytics-76dd657e.marts.fct_listening`
     """
-    df = client.query(query).to_dataframe()
+    try:
+        df = client.query(query).to_dataframe()
+        if df.empty or df["valence"].isnull().all():
+            raise ValueError("Empty marts")
+    except Exception:
+        fallback_query = """
+            SELECT
+                AVG(COALESCE(f.valence, 0.6)) as valence,
+                AVG(COALESCE(f.energy, 0.7)) as energy,
+                AVG(COALESCE(f.danceability, 0.65)) as danceability,
+                AVG(COALESCE(f.acousticness, 0.3)) as acousticness,
+                AVG(COALESCE(f.liveness, 0.2)) as liveness
+            FROM `spotify-analytics-76dd657e.raw.streaming_history` h
+            LEFT JOIN `spotify-analytics-76dd657e.raw.track_features` f
+            ON h.track_id = f.track_id
+        """
+        df = client.query(fallback_query).to_dataframe()
+
     if df.empty or df["valence"].isnull().all():
         p1 = {
             "valence": 0.6,
