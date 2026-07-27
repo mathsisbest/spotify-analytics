@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 from pydantic import ValidationError
+
 from spotify_analytics.models import (
     Artist,
     IngestionRun,
