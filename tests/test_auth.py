@@ -204,14 +204,14 @@ class TestFetchRefreshTokenFromSecretManager:
     def test_fetches_secret_successfully(self) -> None:
         from spotify_analytics.auth import fetch_refresh_token_from_secret_manager
 
+        mock_sm_module = Mock()
         mock_client = Mock()
         mock_response = Mock()
         mock_response.payload.data.decode.return_value = "  secret_refresh_token  "
         mock_client.access_secret_version.return_value = mock_response
+        mock_sm_module.SecretManagerServiceClient.return_value = mock_client
 
-        with patch(
-            "google.cloud.secretmanager_v1.SecretManagerServiceClient", return_value=mock_client
-        ):
+        with patch.dict("sys.modules", {"google.cloud.secretmanager_v1": mock_sm_module}):
             token = fetch_refresh_token_from_secret_manager("my-secret", "my-project")
 
         assert token == "secret_refresh_token"
