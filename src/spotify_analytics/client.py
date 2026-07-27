@@ -166,5 +166,24 @@ class SpotifyClient:
             )
         return result
 
+    def get_currently_playing(self) -> dict[str, Any] | None:
+        try:
+            data = self._request("GET", f"{BASE_URL}/me/player/currently-playing")
+        except SpotifyClientError:
+            return None
+        if not isinstance(data, dict) or not data.get("item"):
+            return None
+        item = data["item"]
+        return {
+            "is_playing": data.get("is_playing", False),
+            "track_name": item.get("name", ""),
+            "artist_name": ", ".join(a.get("name", "") for a in item.get("artists", [])),
+            "album_name": item.get("album", {}).get("name", ""),
+            "album_art_url": (item.get("album", {}).get("images", [{}])[0].get("url", "")),
+            "progress_ms": data.get("progress_ms", 0),
+            "duration_ms": item.get("duration_ms", 0),
+            "track_id": item.get("id", ""),
+        }
+
     def close(self) -> None:
         self._session.close()
