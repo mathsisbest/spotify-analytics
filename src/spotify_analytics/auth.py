@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import os
 import time
 from typing import Any
 
@@ -17,6 +18,7 @@ __all__ = [
     "SpotifyTokenResponse",
     "TokenStore",
     "build_authorize_url",
+    "fetch_refresh_token_from_secret_manager",
 ]
 
 
@@ -117,6 +119,26 @@ class TokenStore:
             if cached is not None:
                 return cached
         raise SpotifyAuthError("No access token and no refresh token")
+
+
+def fetch_refresh_token_from_secret_manager(secret_id: str, project_id: str | None = None) -> str:
+    try:
+        from google.cloud import secretmanager
+    except ImportError as err:
+        msg = "google-cloud-secretmanager package is required to fetch secrets"
+        raise SpotifyAuthError(msg) from err
+
+    proj = project_id or os.environ.get("GCP_PROJECT_ID")
+    if not proj:
+        raise SpotifyAuthError("GCP_PROJECT_ID is required for Secret Manager access")
+
+    try:
+        client = secretmanager.SecretManagerServiceClient()
+        name = f"projects/{proj}/secrets/{secret_id}/versions/latest"
+        response = client.access_secret_version(request={"name": name})
+        return response.payload.data.decode("UTF-8").strip()
+    except Exception as e:
+        raise SpotifyAuthError(f"Failed to fetch refresh token from Secret Manager: {e}") from e
 
 
 def build_authorize_url(

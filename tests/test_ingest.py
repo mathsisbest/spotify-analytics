@@ -209,3 +209,37 @@ class TestMain:
 
         with pytest.raises(ValueError, match="Missing required env var"):
             main({}, None)
+
+    def test_main_secret_manager_fallback(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("SPOTIFY_CLIENT_ID", "cid")
+        monkeypatch.setenv("SPOTIFY_CLIENT_SECRET", "csec")
+        monkeypatch.setenv("GCP_PROJECT_ID", "test-project")
+        monkeypatch.delenv("SPOTIFY_REFRESH_TOKEN", raising=False)
+
+        from datetime import datetime
+
+        mock_run = IngestionRun(
+            run_id="r1",
+            started_at=datetime.fromisoformat("2024-01-01T00:00:00"),
+            finished_at=datetime.fromisoformat("2024-01-01T00:00:01"),
+            rows_ingested=3,
+            rows_enriched=1,
+            status="success",
+            duration_seconds=1.0,
+        )
+
+        with (
+            patch(
+                "spotify_analytics.auth.fetch_refresh_token_from_secret_manager",
+                return_value="secret_rtok",
+            ) as mock_fetch_secret,
+            patch("spotify_analytics.ingest.Ingestor") as mock_ingestor_cls,
+        ):
+            mock_ingestor = Mock()
+            mock_ingestor.run.return_value = mock_run
+            mock_ingestor_cls.return_value = mock_ingestor
+
+            res = main({}, None)
+
+        mock_fetch_secret.assert_called_once_with("spotify-refresh-token")
+        assert "Ingested 3 rows" in res

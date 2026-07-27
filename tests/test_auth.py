@@ -198,3 +198,27 @@ class TestBuildAuthorizeUrl:
     def test_custom_scope(self) -> None:
         url = build_authorize_url("cid", "http://localhost/callback", scope="user-top-read")
         assert "scope=user-top-read" in url
+
+
+class TestFetchRefreshTokenFromSecretManager:
+    def test_fetches_secret_successfully(self) -> None:
+        from spotify_analytics.auth import fetch_refresh_token_from_secret_manager
+
+        mock_client = Mock()
+        mock_response = Mock()
+        mock_response.payload.data.decode.return_value = "  secret_refresh_token  "
+        mock_client.access_secret_version.return_value = mock_response
+
+        with patch(
+            "google.cloud.secretmanager.SecretManagerServiceClient", return_value=mock_client
+        ):
+            token = fetch_refresh_token_from_secret_manager("my-secret", "my-project")
+
+        assert token == "secret_refresh_token"
+
+    def test_raises_if_no_project_id(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        from spotify_analytics.auth import fetch_refresh_token_from_secret_manager
+
+        monkeypatch.delenv("GCP_PROJECT_ID", raising=False)
+        with pytest.raises(SpotifyAuthError, match="GCP_PROJECT_ID is required"):
+            fetch_refresh_token_from_secret_manager("my-secret")

@@ -78,7 +78,13 @@ class Ingestor:
 
 
 def main(event: dict[str, Any] | None = None, context: Any = None) -> str:
-    refresh_token = _env_or_raise("SPOTIFY_REFRESH_TOKEN")
+    refresh_token = os.environ.get("SPOTIFY_REFRESH_TOKEN")
+    if not refresh_token:
+        secret_id = os.environ.get("SPOTIFY_REFRESH_TOKEN_SECRET_ID", "spotify-refresh-token")
+        from spotify_analytics.auth import fetch_refresh_token_from_secret_manager
+
+        refresh_token = fetch_refresh_token_from_secret_manager(secret_id)
+
     token_store = _build_token_store()
     token_store.set_refresh_token(refresh_token)
 
