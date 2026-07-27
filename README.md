@@ -3,6 +3,7 @@
 [![CI](https://github.com/mathsisbest/spotify-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/mathsisbest/spotify-analytics/actions/workflows/ci.yml)
 ![Python 3.11](https://img.shields.io/badge/python-3.11-blue)
 ![Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen)
+![Status](https://img.shields.io/badge/status-production_ready-success)
 
 **Resonance** is an end-to-end platform that ingests Spotify listening history, enriches it with audio features, trains ML models, and surfaces insights through a Streamlit dashboard. Connect your Spotify account and let your data tell the story.
 
