@@ -90,6 +90,24 @@ if recs:
                 st.markdown(f"🎵 **{rec['track_name']}** by *{rec['artist_name']}*")
                 st.caption(rec["reason"])
             with col_score:
-                st.metric("Match Score", f"{rec['score'] * 100:.0f}%")
+                st.caption(f"Score: {rec.get('score', 0.95):.2f}")
+
+    from datetime import datetime
+
+    from dashboard.data import export_playlist
+
+    track_ids = [
+        r.get("track_id", f"track_{i}")
+        for i, r in enumerate(recs)
+        if r.get("track_id") or r.get("track_name")
+    ]
+    playlist_name = f"Resonance Mix — {datetime.now().strftime('%Y-%m-%d')}"
+
+    if st.button("🎧 Export as Spotify Playlist", type="primary"):
+        url = export_playlist(track_ids, playlist_name)
+        if url:
+            st.success(f"Playlist created! [Open in Spotify]({url})")
+        else:
+            st.error("Failed to create playlist. Check Spotify credentials.")
 else:
     st.info("No recommendations available.")

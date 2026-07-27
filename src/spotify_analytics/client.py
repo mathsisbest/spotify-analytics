@@ -185,5 +185,36 @@ class SpotifyClient:
             "track_id": item.get("id", ""),
         }
 
+    def get_current_user_id(self) -> str:
+        data = self._request("GET", f"{BASE_URL}/me")
+        assert isinstance(data, dict)
+        return str(data.get("id", ""))
+
+    def create_playlist(
+        self,
+        user_id: str,
+        name: str,
+        description: str = "",
+        public: bool = False,
+    ) -> str:
+        data = self._request(
+            "POST",
+            f"{BASE_URL}/users/{user_id}/playlists",
+            json={"name": name, "description": description, "public": public},
+        )
+        assert isinstance(data, dict)
+        return str(data.get("id", ""))
+
+    def add_tracks_to_playlist(
+        self,
+        playlist_id: str,
+        track_uris: list[str],
+    ) -> None:
+        self._request(
+            "POST",
+            f"{BASE_URL}/playlists/{playlist_id}/tracks",
+            json={"uris": track_uris},
+        )
+
     def close(self) -> None:
         self._session.close()
