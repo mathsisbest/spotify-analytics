@@ -55,7 +55,7 @@ resource "google_monitoring_uptime_check_config" "dashboard_uptime" {
     type = "uptime_url"
     labels = {
       project_id = var.project_id
-      host       = "${google_cloud_run_v2_service.dashboard.name}-${var.project_id}.${var.region}.run.app"
+      host       = replace(google_cloud_run_v2_service.dashboard.uri, "https://", "")
     }
   }
 }
