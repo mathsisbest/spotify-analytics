@@ -376,3 +376,35 @@ def get_recommendations(user_profile: str | None = None) -> list[dict[str, Any]]
 def get_raw_history(limit: int = 100) -> list[dict[str, Any]]:
     res: list[dict[str, Any]] = get_recent_tracks(limit=limit)
     return res
+
+
+@st.cache_data(ttl=30)
+def get_last_ingestion_run() -> dict[str, Any] | None:
+    client = get_bq_client()
+    query = """
+        SELECT
+            CAST(started_at AS STRING) as started_at,
+            CAST(finished_at AS STRING) as finished_at,
+            tracks_ingested,
+            features_fetched,
+            status,
+            error_message
+        FROM `spotify-analytics-76dd657e.raw.ingestion_runs`
+        ORDER BY started_at DESC
+        LIMIT 1
+    """
+    try:
+        df = client.query(query).to_dataframe()
+        if not df.empty:
+            row = df.iloc[0]
+            return {
+                "started_at": str(row["started_at"]),
+                "finished_at": str(row["finished_at"]) if row["finished_at"] else None,
+                "tracks_ingested": int(row["tracks_ingested"]) if row["tracks_ingested"] else 0,
+                "features_fetched": int(row["features_fetched"]) if row["features_fetched"] else 0,
+                "status": str(row["status"]),
+                "error_message": str(row["error_message"]) if row["error_message"] else None,
+            }
+    except Exception:
+        pass
+    return None

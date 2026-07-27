@@ -58,5 +58,11 @@ if artists:
         }
     )
     st.dataframe(display, hide_index=True, use_container_width=True)
+    st.download_button(
+        label="📥 Download CSV",
+        data=display.to_csv(index=False),
+        file_name="top_artists.csv",
+        mime="text/csv",
+    )
 else:
     st.info("No artist data available.")

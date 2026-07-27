@@ -43,5 +43,11 @@ if tracks:
         }
     )
     st.dataframe(display, hide_index=True, use_container_width=True)
+    st.download_button(
+        label="📥 Download CSV",
+        data=display.to_csv(index=False),
+        file_name="top_tracks.csv",
+        mime="text/csv",
+    )
 else:
     st.info("No track data available.")
