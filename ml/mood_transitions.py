@@ -36,7 +36,8 @@ def build_mood_transition_matrix(
         prev_mood = curr_mood
 
     row_sums = counts.sum(axis=1, keepdims=True)
-    matrix = np.where(row_sums > 0, counts / row_sums, 0.25)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        matrix = np.where(row_sums > 0, counts / np.maximum(row_sums, 1e-9), 0.25)
 
     return {
         "states": states,
