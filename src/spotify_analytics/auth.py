@@ -127,7 +127,7 @@ def fetch_refresh_token_from_secret_manager(secret_id: str, project_id: str | No
         raise SpotifyAuthError("GCP_PROJECT_ID is required for Secret Manager access")
 
     try:
-        from google.cloud import secretmanager_v1
+        from google.cloud import secretmanager_v1  # type: ignore[attr-defined]
     except (ImportError, AttributeError) as err:
         msg = "google-cloud-secretmanager package is required to fetch secrets"
         raise SpotifyAuthError(msg) from err

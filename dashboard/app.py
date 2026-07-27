@@ -178,7 +178,7 @@ if last_run:
         <div style="font-size: 0.75rem; color: #B3B3B3;
                     border-top: 1px solid #282828;
                     padding-top: 12px; margin-top: 12px;">
-            <span style="color: #FFFFFF; font-weight: 700;">{status_icon} Pipeline Status: {last_run['status'].upper()}</span><br/>
+            <span style="color: #FFFFFF; font-weight: 700;">{status_icon} Pipeline Status: {last_run["status"].upper()}</span><br/>
             <span>Last Ingestion: {time_str}</span><br/>
             <span>Ingested Rows: {last_run["tracks_ingested"]}</span>
         </div>
