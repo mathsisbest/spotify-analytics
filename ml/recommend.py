@@ -3,6 +3,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
+from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 
 _FEATURE_COLS = [
@@ -113,6 +114,75 @@ def recommend_for_user(
                 "track_id": str(row["track_id"]),
                 "score": round(float(row["_score"]), 4),
                 "cluster_id": int(row["cluster_id"]),
+            }
+        )
+
+    return results
+
+
+AUDIO_FEATURES = [
+    "danceability",
+    "energy",
+    "valence",
+    "acousticness",
+    "liveness",
+    "speechiness",
+    "tempo",
+    "loudness",
+    "instrumentalness",
+    "key",
+    "mode",
+    "time_signature",
+]
+
+
+def recommend_cosine(
+    user_recent_features: list[dict[str, Any]],
+    catalog_features: list[dict[str, Any]],
+    recent_track_ids: list[str] | None = None,
+    n: int = 10,
+) -> list[dict[str, Any]]:
+    if n <= 0 or not user_recent_features or not catalog_features:
+        return []
+
+    exclude_ids = set(recent_track_ids or [])
+
+    user_df = pd.DataFrame(user_recent_features)
+    cat_df = pd.DataFrame(catalog_features)
+
+    for col in AUDIO_FEATURES:
+        if col not in user_df.columns:
+            user_df[col] = 0.0
+        if col not in cat_df.columns:
+            cat_df[col] = 0.0
+
+    valid_cat = cat_df[~cat_df["track_id"].isin(exclude_ids)].copy()
+    if valid_cat.empty:
+        return []
+
+    scaler = StandardScaler()
+    scaler.fit(cat_df[AUDIO_FEATURES].values)
+
+    user_scaled = scaler.transform(user_df[AUDIO_FEATURES].values)
+    cat_scaled = scaler.transform(valid_cat[AUDIO_FEATURES].values)
+
+    user_profile = user_scaled.mean(axis=0).reshape(1, -1)
+
+    nn = NearestNeighbors(n_neighbors=min(n, len(valid_cat)), metric="cosine", algorithm="brute")
+    nn.fit(cat_scaled)
+
+    distances, indices = nn.kneighbors(user_profile)
+
+    results: list[dict[str, Any]] = []
+    for dist, idx in zip(distances[0], indices[0]):
+        row = valid_cat.iloc[idx]
+        sim_score = float(np.clip(1.0 - dist, 0.0, 1.0))
+        results.append(
+            {
+                "track_id": str(row["track_id"]),
+                "score": round(sim_score, 4),
+                "track_name": str(row.get("track_name", "Unknown")),
+                "artist_name": str(row.get("artist_name", "Unknown")),
             }
         )
 
