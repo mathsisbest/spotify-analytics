@@ -120,3 +120,22 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 st.sidebar.caption("Powered by Spotify Web API & GCP BigQuery")
+
+from dashboard.data import get_last_ingestion_run  # noqa: E402
+
+last_run = get_last_ingestion_run()
+if last_run:
+    status_icon = "🟢" if last_run["status"] == "success" else "🔴"
+    time_str = last_run["started_at"][:19] if last_run["started_at"] else "Unknown"
+    st.sidebar.markdown(
+        f"""
+        <div style="font-size: 0.75rem; color: #888888;
+                    border-top: 1px solid #282828;
+                    padding-top: 10px; margin-top: 10px;">
+            <span>{status_icon} <b>Last Ingestion</b></span><br/>
+            <span>Time: {time_str}</span><br/>
+            <span>Ingested: {last_run["tracks_ingested"]} rows</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
