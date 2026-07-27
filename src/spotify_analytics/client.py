@@ -42,7 +42,7 @@ class SpotifyClient:
         if resp.status_code == 401:
             self._token_store.refresh()
             resp = self._session.request(method, url, headers=self._headers(), timeout=30, **kwargs)
-        if resp.status_code != 200:
+        if resp.status_code not in (200, 201):
             raise SpotifyClientError(f"API error {resp.status_code}: {resp.text}")
         result: Any = resp.json()
         return result
