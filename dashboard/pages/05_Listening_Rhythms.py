@@ -4,7 +4,8 @@ from dashboard.components import heatmap_chart, kpi_card
 from dashboard.data import get_listening_heatmap
 
 st.title("🕒 Listening Rhythms & Heatmaps")
-st.caption("Day × Hour activity patterns identifying peak listening windows")
+st.markdown("##### *Day × Hour Temporal Patterns & Peak Streaming Hours*")
+st.caption("Identify your peak listening windows and daily routines across the 24-hour week.")
 
 data = get_listening_heatmap()
 
@@ -48,4 +49,4 @@ if data:
                 help_text="Hour with lowest streaming volume",
             )
 else:
-    st.info("No listening pattern data available.")
+    st.info("No listening rhythm data available.")

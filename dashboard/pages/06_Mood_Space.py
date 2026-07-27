@@ -5,7 +5,10 @@ from dashboard.components import radar_chart, scatter_chart
 from dashboard.data import get_mood_map, get_user_audio_profiles
 
 st.title("🎨 Mood Space & Audio Fingerprint")
-st.caption("Acoustic feature analysis & mood clustering")
+st.markdown("##### *Valence × Energy Mapping & Acoustic Feature Profiles*")
+st.caption(
+    "Acoustic feature analysis decomposing tracks into energy, positivity, danceability, and acousticness."
+)
 
 raw_profiles = get_user_audio_profiles()
 categories = ["valence", "energy", "danceability", "acousticness", "liveness"]
@@ -38,7 +41,7 @@ with col_info:
 
 st.divider()
 st.subheader("🌌 Interactive Mood Space (Energy × Valence)")
-st.caption("Valence (sad vs happy) vs. Energy (calm vs intense)")
+st.caption("Valence (sad vs happy) mapped against Energy (calm vs intense).")
 
 mood = get_mood_map()
 
@@ -58,4 +61,4 @@ if mood:
         hover_data=["track_name", "artist_name"],
     )
 else:
-    st.info("No mood data available.")
+    st.info("No mood space data available.")

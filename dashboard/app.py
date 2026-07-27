@@ -1,125 +1,171 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Resonance — Spotify Analytics & BI Studio",
-    page_icon="🎵",
+    page_title="Resonance — Spotify Music Intelligence Studio",
+    page_icon="🟢",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-custom_css = """
+spotify_css = """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Circular+Std:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
 
+    /* Spotify Dark Theme Palette */
     .stApp {
-        background: linear-gradient(180deg, #121212 0%, #080808 100%);
+        background-color: #121212;
         color: #FFFFFF;
     }
 
     /* Sidebar Styling */
     section[data-testid="stSidebar"] {
-        background-color: #181818 !important;
+        background-color: #000000 !important;
         border-right: 1px solid #282828;
     }
 
-    /* Metric Cards Glassmorphism */
+    section[data-testid="stSidebar"] .block-container {
+        padding-top: 1.5rem;
+    }
+
+    /* Card Panels */
+    .spotify-card {
+        background-color: #181818;
+        border: 1px solid #282828;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .spotify-card:hover {
+        background-color: #282828;
+        border-color: #1DB954;
+    }
+
+    /* Metric Cards Glassmorphism & Spotify Green accent */
     div[data-testid="stMetric"] {
-        background: rgba(40, 40, 40, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
+        background-color: #181818;
+        border: 1px solid #282828;
+        border-radius: 8px;
         padding: 16px 20px;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-        transition: transform 0.2s ease, border-color 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
     }
 
     div[data-testid="stMetric"]:hover {
         transform: translateY(-2px);
-        border-color: rgba(29, 185, 84, 0.5);
+        background-color: #282828;
+        border-color: #1DB954;
     }
 
     div[data-testid="stMetricValue"] {
         font-size: 2.2rem !important;
-        font-weight: 800 !important;
+        font-weight: 900 !important;
         color: #1DB954 !important;
         letter-spacing: -0.5px;
     }
 
     div[data-testid="stMetricLabel"] {
         color: #B3B3B3 !important;
-        font-size: 0.9rem !important;
-        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
-    /* Buttons & Inputs */
+    /* Spotify Green Primary Pill Buttons */
     .stButton>button {
         background-color: #1DB954 !important;
-        color: #FFFFFF !important;
-        font-weight: 700 !important;
+        color: #000000 !important;
+        font-weight: 800 !important;
+        font-size: 0.9rem !important;
         border-radius: 50px !important;
         border: none !important;
-        padding: 10px 24px !important;
-        transition: all 0.2s ease !important;
+        padding: 12px 28px !important;
+        letter-spacing: 0.2px;
+        transition: all 0.2s ease-in-out !important;
+        box-shadow: 0 4px 14px rgba(29, 185, 84, 0.3);
     }
 
     .stButton>button:hover {
         background-color: #1ed760 !important;
-        transform: scale(1.03);
+        color: #000000 !important;
+        transform: scale(1.04);
+        box-shadow: 0 6px 20px rgba(30, 215, 96, 0.5);
     }
 
-    /* Responsive Mobile Tweaks */
-    @media (max-width: 768px) {
-        div[data-testid="stMetricValue"] {
-            font-size: 1.6rem !important;
-        }
-        .main .block-container {
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
+    /* Streamlit Dataframe Headers & Table */
+    div[data-testid="stDataFrame"] {
+        background-color: #181818;
+        border: 1px solid #282828;
+        border-radius: 8px;
+    }
+
+    /* Headings Accent */
+    h1, h2, h3 {
+        color: #FFFFFF;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    /* Tabs Styling */
+    button[data-baseweb="tab"] {
+        font-weight: 700 !important;
+        color: #B3B3B3 !important;
+    }
+
+    button[aria-selected="true"] {
+        color: #1DB954 !important;
+        border-bottom-color: #1DB954 !important;
     }
     </style>
 """
-st.markdown(custom_css, unsafe_allow_html=True)
+st.markdown(spotify_css, unsafe_allow_html=True)
 
+# Sidebar Branding
 st.sidebar.markdown(
     """
-    <div style="text-align: center; padding: 10px 0;">
-        <h2 style="color: #1DB954; font-weight: 800; margin: 0;">🎵 Resonance</h2>
-        <p style="color: #B3B3B3; font-size: 0.85rem; margin-top: 4px;">
-            Cloud-Native Music Intelligence
-        </p>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+        <div style="background-color: #1DB954; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; color: #000000;">
+            ⚡
+        </div>
+        <div>
+            <h2 style="color: #FFFFFF; font-size: 1.3rem; font-weight: 900; margin: 0;">Resonance</h2>
+            <p style="color: #1DB954; font-size: 0.75rem; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: 0.8px;">
+                Spotify Intelligence Studio
+            </p>
+        </div>
     </div>
     """,
     unsafe_allow_html=True,
 )
+
 st.sidebar.divider()
+
 st.sidebar.markdown(
     """
-    <div style="background: rgba(29,185,84,0.1);
+    <div style="background: #181818;
                 border-left: 4px solid #1DB954;
                 padding: 12px;
                 border-radius: 6px;
                 margin-bottom: 20px;">
-        <span style="font-size: 0.8rem; color: #1ED760; font-weight: 700;">
-            LIVE GCP PIPELINE
+        <span style="font-size: 0.75rem; color: #1ED760; font-weight: 800; text-transform: uppercase;">
+            🟢 LIVE GCP DATA PIPELINE
         </span><br>
-        <span style="font-size: 0.75rem; color: #CCCCCC;">
-            BigQuery · dbt · Cloud Functions
+        <span style="font-size: 0.75rem; color: #B3B3B3;">
+            BigQuery · dbt Medallion · Scikit-Learn ML
         </span>
     </div>
     """,
     unsafe_allow_html=True,
 )
-st.sidebar.caption("Powered by Spotify Web API & GCP BigQuery")
 
 from dashboard.data import get_last_ingestion_run  # noqa: E402
 
@@ -129,13 +175,15 @@ if last_run:
     time_str = last_run["started_at"][:19] if last_run["started_at"] else "Unknown"
     st.sidebar.markdown(
         f"""
-        <div style="font-size: 0.75rem; color: #888888;
+        <div style="font-size: 0.75rem; color: #B3B3B3;
                     border-top: 1px solid #282828;
-                    padding-top: 10px; margin-top: 10px;">
-            <span>{status_icon} <b>Last Ingestion</b></span><br/>
-            <span>Time: {time_str}</span><br/>
-            <span>Ingested: {last_run["tracks_ingested"]} rows</span>
+                    padding-top: 12px; margin-top: 12px;">
+            <span style="color: #FFFFFF; font-weight: 700;">{status_icon} Pipeline Status: {last_run['status'].upper()}</span><br/>
+            <span>Last Ingestion: {time_str}</span><br/>
+            <span>Ingested Rows: {last_run["tracks_ingested"]}</span>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
+st.sidebar.caption("Powered by Spotify Web API & Google Cloud")
