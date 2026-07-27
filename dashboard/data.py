@@ -15,7 +15,7 @@ def get_bq_client() -> bigquery.Client:
         from google.oauth2 import service_account
 
         info = dict(st.secrets["gcp_service_account"])
-        credentials = service_account.Credentials.from_service_account_info(info)
+        credentials = service_account.Credentials.from_service_account_info(info)  # type: ignore[no-untyped-call]
         return bigquery.Client(project=PROJECT_ID, credentials=credentials)
     return bigquery.Client(project=PROJECT_ID)
 
