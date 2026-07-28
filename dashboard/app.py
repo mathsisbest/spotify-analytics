@@ -4,8 +4,9 @@ from pathlib import Path
 import streamlit as st
 
 _repo_root = str(Path(__file__).resolve().parent.parent)
+_dashboard = str(Path(__file__).resolve().parent)
 _src = str(Path(__file__).resolve().parent.parent / "src")
-for p in [_repo_root, _src]:
+for p in [_repo_root, _dashboard, _src]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
