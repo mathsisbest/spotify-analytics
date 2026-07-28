@@ -30,6 +30,13 @@ resource "google_bigquery_dataset_iam_member" "dashboard_bq_read_raw" {
   member     = "serviceAccount:${google_service_account.dashboard.email}"
 }
 
+# IAM: allow dashboard to run BigQuery query jobs
+resource "google_project_iam_member" "dashboard_bq_job_user" {
+  project = var.project_id
+  role    = "roles/bigquery.jobUser"
+  member  = "serviceAccount:${google_service_account.dashboard.email}"
+}
+
 # Cloud Run service
 resource "google_cloud_run_v2_service" "dashboard" {
   name         = "spotify-dashboard"
