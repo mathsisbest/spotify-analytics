@@ -1,4 +1,4 @@
-from dashboard.components.charts import (
+from components.charts import (
     area_chart,
     bar_chart,
     donut_chart,
@@ -9,7 +9,7 @@ from dashboard.components.charts import (
     scatter_chart,
     time_series_chart,
 )
-from dashboard.components.kpi import kpi_card
+from components.kpi import kpi_card
 
 __all__ = [
     "area_chart",

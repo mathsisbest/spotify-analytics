@@ -3,8 +3,8 @@ from datetime import date, timedelta
 import pandas as pd
 import streamlit as st
 
-from dashboard.components import kpi_card, time_series_chart
-from dashboard.data import get_daily_summary, get_recent_tracks
+from components import kpi_card, time_series_chart
+from data import get_daily_summary, get_recent_tracks
 
 st.title("⚡ Executive Summary & Live Feed")
 st.markdown("##### *Macro Streaming Trends & Ingestion Pipeline Feed*")

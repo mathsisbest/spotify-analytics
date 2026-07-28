@@ -2,7 +2,7 @@ import time
 
 import streamlit as st
 
-from dashboard.data import get_now_playing
+from data import get_now_playing
 
 st.title("🎵 Currently Playing")
 st.markdown("##### *Live Real-Time Playback & Session Telemetry*")

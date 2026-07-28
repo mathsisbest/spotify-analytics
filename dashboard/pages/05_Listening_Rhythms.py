@@ -1,7 +1,7 @@
 import streamlit as st
 
-from dashboard.components import heatmap_chart, kpi_card
-from dashboard.data import get_listening_heatmap
+from components import heatmap_chart, kpi_card
+from data import get_listening_heatmap
 
 st.title("🕒 Listening Rhythms & Heatmaps")
 st.markdown("##### *Day × Hour Temporal Patterns & Peak Streaming Hours*")

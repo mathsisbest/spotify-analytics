@@ -3,8 +3,8 @@ from datetime import date, timedelta
 import pandas as pd
 import streamlit as st
 
-from dashboard.components import area_chart, kpi_card
-from dashboard.data import get_genre_trends
+from components import area_chart, kpi_card
+from data import get_genre_trends
 
 st.title("🎸 Genre & Style Evolution")
 st.markdown("##### *Temporal Shifts in Genre Preferences & Catalog Diversity*")

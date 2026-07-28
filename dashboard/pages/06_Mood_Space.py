@@ -1,8 +1,8 @@
 import pandas as pd
 import streamlit as st
 
-from dashboard.components import radar_chart, scatter_chart
-from dashboard.data import get_mood_map, get_user_audio_profiles
+from components import radar_chart, scatter_chart
+from data import get_mood_map, get_user_audio_profiles
 
 st.title("🎨 Mood Space & Audio Fingerprint")
 st.markdown("##### *Valence × Energy Mapping & Acoustic Feature Profiles*")

@@ -4,9 +4,9 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import streamlit as st
 
-import dashboard.theme  # noqa: F401
-from dashboard.components import kpi_card
-from dashboard.data import export_playlist, get_forecast, get_recommendations
+import theme  # noqa: F401
+from components import kpi_card
+from data import export_playlist, get_forecast, get_recommendations
 
 st.title("🤖 Predictive AI & Smart Recommendations")
 st.markdown("##### *Time-Series Volume Forecasting & Cosine Vector Playlist Generation*")

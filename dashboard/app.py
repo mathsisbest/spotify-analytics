@@ -176,7 +176,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 
-from dashboard.data import get_last_ingestion_run  # noqa: E402
+from data import get_last_ingestion_run  # noqa: E402
 
 last_run = get_last_ingestion_run()
 if last_run:

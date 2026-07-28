@@ -1,8 +1,8 @@
 import pandas as pd
 import streamlit as st
 
-from dashboard.components import bar_chart, donut_chart, kpi_card
-from dashboard.data import get_top_artists
+from components import bar_chart, donut_chart, kpi_card
+from data import get_top_artists
 
 st.title("🎤 Top Artists Intelligence")
 st.markdown("##### *Artist Affinity, Market Share & Listening Concentration*")

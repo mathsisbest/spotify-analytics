@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from dashboard.data import get_recent_tracks
+from data import get_recent_tracks
 from ml.mood_transitions import build_mood_transition_matrix
 
 st.title("🔄 Mood Transitions & Markov Chain Flow")
